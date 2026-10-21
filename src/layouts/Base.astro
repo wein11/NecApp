@@ -1,0 +1,167 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { t, htmlLang, ogLocale, langs, type Lang } from '../i18n';
+import { site, company, isPending } from '../config';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  alternates: Record<Lang, string>;
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { lang, title, description, alternates, jsonLd = [] } = Astro.props;
+const d = t(lang);
+const canonical = new URL(alternates[lang], Astro.site).href;
+const wa = isPending(site.whatsapp) ? null : `https://wa.me/${site.whatsapp}`;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'NecApp',
+  legalName: company.legalName,
+  url: new URL('/', Astro.site).href,
+  logo: new URL('/brand/logo.webp', Astro.site).href,
+  slogan: 'Health solution. Software & application',
+  ...(isPending(site.email) ? {} : { email: site.email }),
+  areaServed: 'Latin America',
+};
+---
+
+<!doctype html>
+<html lang={htmlLang[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {langs.map((l) => <link rel="alternate" hreflang={htmlLang[l]} href={new URL(alternates[l], Astro.site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.es, Astro.site).href} />
+    <meta name="theme-color" content="#032a5f" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NecApp" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    <meta property="og:image" content={new URL('/brand/og.png', Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify([org, ...jsonLd])} />
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#contenido">{d.nav.skip}</a>
+    <Header lang={lang} alternates={alternates} />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+
+    {
+      wa && (
+        <a class="wa-float" href={wa} data-wa="float" rel="noopener" aria-label={d.whatsappFloat}>
+          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3Zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6Zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.2 3.2 1.3 3.4c.2.2 2.3 3.5 5.6 4.9 2.1.9 2.9 1 3.9.8.6-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5l-.9-.4Z"
+            />
+          </svg>
+          <span class="wa-label">WhatsApp</span>
+        </a>
+      )
+    }
+
+    <div class="consent" data-consent data-ga={site.gaId} hidden>
+      <p>{d.cookies.text}</p>
+      <div>
+        <button type="button" class="btn btn-secondary" data-reject>{d.cookies.reject}</button>
+        <button type="button" class="btn btn-primary" data-accept>{d.cookies.accept}</button>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  .wa-float {
+    position: fixed;
+    right: var(--margin);
+    bottom: 20px;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 56px;
+    padding: 0 20px 0 16px;
+    background: var(--teal);
+    color: var(--navy-deep);
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 12px 28px -10px rgb(2 30 69 / 0.55); /* taste-skill-ignore: botón flotante */
+    transition: transform 0.25s var(--ease-out), background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+  }
+
+  .wa-float:hover {
+    background: var(--navy);
+    color: var(--on-navy);
+    transform: translateY(-2px);
+  }
+
+  .wa-float:active {
+    transform: scale(0.96);
+  }
+
+  @media (max-width: 699px) {
+    .wa-float {
+      padding: 0;
+      width: 56px;
+      justify-content: center;
+    }
+
+    .wa-label {
+      position: absolute;
+      width: 1px;
+      height: 1px; /* taste-skill-ignore: texto solo para lectores de pantalla */
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+  }
+
+  .consent {
+    position: fixed;
+    left: var(--margin);
+    bottom: 20px;
+    z-index: 50;
+    max-width: 440px;
+    padding: 20px 22px;
+    background: var(--navy);
+    color: var(--on-navy);
+    box-shadow: 0 18px 40px -16px rgb(2 30 69 / 0.6); /* taste-skill-ignore: aviso flotante */
+    display: grid;
+    gap: 16px;
+    font-size: 1rem;
+  }
+
+  .consent[hidden] {
+    display: none;
+  }
+
+  .consent div {
+    display: flex;
+    gap: 8px;
+  }
+
+  .consent .btn {
+    min-height: 48px;
+    padding: 0 18px;
+  }
+</style>

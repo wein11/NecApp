@@ -1,0 +1,320 @@
+---
+import { t, type Lang } from '../i18n';
+
+export type FragmentKind = 'battery' | 'eyes' | 'tests' | 'questionnaire' | 'markers' | 'pipeline';
+
+interface Props {
+  lang: Lang;
+  kind: FragmentKind;
+}
+
+const { lang, kind } = Astro.props;
+const f = t(lang).fragments;
+const showEyes = kind === 'battery' || kind === 'eyes';
+const showTests = kind === 'battery' || kind === 'tests';
+const dark = kind !== 'markers';
+const head =
+  kind === 'eyes'
+    ? [f.eyesTitle, f.eyesMeta]
+    : kind === 'questionnaire'
+      ? [f.questionnaire.title, f.questionnaire.meta]
+      : kind === 'pipeline'
+        ? [f.pipeline.title, f.pipeline.meta]
+        : kind === 'markers'
+          ? [f.markers.title, f.markers.frame]
+          : [f.battery.title, f.battery.patient];
+---
+
+<figure class:list={['frag', { light: !dark }]} data-ui data-rise>
+  <div class="frag-head">
+    <span class="frag-title">{head[0]}</span>
+    <span class="frag-meta">{head[1]}</span>
+  </div>
+
+  {
+    showEyes && (
+      <div class:list={['eyes', { big: kind === 'eyes' }]} aria-hidden="true">
+        {f.battery.eyes.map((label, i) => (
+          <div class="eye">
+            <svg viewBox="0 0 160 100">
+              <ellipse cx="80" cy="50" rx="66" ry="36" class="sclera" />
+              <circle cx={i ? 88 : 72} cy="50" r="22" class="iris" />
+              <circle cx={i ? 88 : 72} cy="50" r="10" class="pupil" />
+              <path
+                d={`M${i ? 88 : 72} 18v12M${i ? 88 : 72} 70v12M${i ? 56 : 40} 50h12M${i ? 108 : 92} 50h12`}
+                class="cross"
+              />
+            </svg>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    showTests && (
+      <ul class="rows">
+        {f.battery.rows.map(([name, status, state]) => (
+          <li>
+            <span>{name}</span>
+            <span class:list={['status', state]}>{status}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    kind === 'pipeline' && (
+      <ul class="rows">
+        {f.pipeline.rows.map(([name, status, state]) => (
+          <li>
+            <span>{name}</span>
+            <span class:list={['status', state]}>{status}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    kind === 'questionnaire' && (
+      <div class="quest">
+        <ul class="rows">
+          {f.questionnaire.rows.map(([name, value]) => (
+            <li>
+              <span>{name}</span>
+              <span class="status done">{value}</span>
+            </li>
+          ))}
+        </ul>
+        <div class="total">
+          <span>{f.questionnaire.total}</span>
+          <strong>{f.questionnaire.score}</strong>
+          <span class="status live">{f.questionnaire.band}</span>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <span style="width: 38%" />
+        </div>
+      </div>
+    )
+  }
+
+  {
+    kind === 'markers' && (
+      <svg viewBox="0 0 420 300" role="img" aria-label={`${f.markers.title}, ${f.markers.model}`}>
+        <rect x="20" y="268" width="380" height="10" class="ground" />
+        <g class="limb back">
+          <path d="M186 122 L160 180 L130 226 L122 233 M130 226 L150 244" />
+          <path d="M195 50 L176 90 L170 126" />
+        </g>
+        <g class="limb">
+          <path d="M188 120 L195 42" />
+          <circle cx="199" cy="24" r="15" class="head" />
+          <path d="M190 120 L201 186 L196 250 L184 262 M196 250 L228 266" />
+          <path d="M195 50 L213 90 L229 120" />
+        </g>
+        <g class="mk">
+          <circle cx="190" cy="119" r="7" />
+          <circle cx="197" cy="153" r="7" />
+          <circle cx="203" cy="186" r="7" />
+          <circle cx="200" cy="218" r="7" />
+          <circle cx="197" cy="250" r="7" />
+          <circle cx="183" cy="262" r="7" />
+          <circle cx="228" cy="266" r="7" />
+        </g>
+        <g class="tags">
+          <text x="250" y="124">{f.markers.labels[0]}</text>
+          <text x="250" y="191">{f.markers.labels[1]}</text>
+          <text x="250" y="244">{f.markers.labels[2]}</text>
+          <text x="60" y="262">{f.markers.labels[3]}</text>
+        </g>
+      </svg>
+    )
+  }
+
+  <figcaption class="frag-foot">
+    <span>{kind === 'markers' ? f.markers.model : ''}</span>
+    <span>{f.sample}</span>
+  </figcaption>
+</figure>
+
+<style>
+  .frag {
+    margin: 8px 0 0;
+    background: var(--navy-deep);
+    color: var(--on-navy);
+    padding: 18px 20px 16px;
+    font-family: var(--font-display);
+  }
+
+  .frag-head,
+  .frag-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 0.875rem;
+  }
+
+  .frag-title {
+    font-weight: 600;
+  }
+
+  .frag-meta,
+  .frag-foot,
+  figcaption {
+    color: var(--on-navy-soft);
+    font-size: 0.875rem;
+  }
+
+  .eyes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .eye {
+    background: #000d20;
+    padding: 10px 10px 8px;
+    display: grid;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--on-navy-soft);
+  }
+
+  .sclera {
+    fill: #1d2c42;
+  }
+
+  .iris {
+    fill: #0c1626;
+  }
+
+  .pupil {
+    fill: #020814;
+    stroke: var(--teal-light);
+    stroke-width: 2;
+  }
+
+  .cross {
+    stroke: var(--teal-light);
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .rows {
+    display: grid;
+    gap: 2px;
+  }
+
+  .rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--navy);
+    font-size: 0.9375rem;
+  }
+
+  .status {
+    font-size: 0.8125rem;
+    color: var(--on-navy-soft);
+    white-space: nowrap;
+  }
+
+  .status.done {
+    color: var(--teal-light);
+  }
+
+  .status.live {
+    color: var(--navy-deep);
+    background: var(--teal-light);
+    padding: 1px 8px;
+  }
+
+  .frag-foot {
+    margin-top: 10px;
+  }
+
+  .eyes.big .eye {
+    padding: 18px 14px 12px;
+  }
+
+  .total {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 14px;
+    font-size: 0.9375rem;
+  }
+
+  .total strong {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-left: auto;
+  }
+
+  .meter {
+    margin-top: 10px;
+    height: 10px;
+    background: var(--navy);
+  }
+
+  .meter span {
+    display: block;
+    height: 100%;
+    background: var(--teal-light);
+  }
+
+  .light {
+    background: var(--paper-2);
+    color: var(--navy);
+  }
+
+  .light .frag-meta,
+  .light .frag-foot {
+    color: var(--ink-soft);
+  }
+
+  .light svg {
+    margin: 8px 0;
+    width: 100%;
+    height: auto;
+  }
+
+  .ground {
+    fill: #c9d5e1;
+  }
+
+  .limb path {
+    fill: none;
+    stroke: var(--navy);
+    stroke-width: 11;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .limb.back path {
+    stroke: #7f95b2;
+  }
+
+  .head {
+    fill: var(--navy);
+  }
+
+  .mk circle {
+    fill: var(--teal);
+    stroke: var(--paper);
+    stroke-width: 3;
+  }
+
+  .tags text {
+    font-family: var(--font-display);
+    font-size: 17px;
+    fill: var(--ink-soft);
+  }
+</style>

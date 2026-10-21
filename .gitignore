@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.taste-skill/inspect/
+.impeccable/questions/
+.env
+.taste-skill/

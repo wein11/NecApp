@@ -1,0 +1,369 @@
+---
+import Base from '../layouts/Base.astro';
+import Stage from '../components/Stage.astro';
+import LeadForm from '../components/LeadForm.astro';
+import UiFragment, { type FragmentKind } from '../components/UiFragment.astro';
+import { t, langs, homePath, productPath, type Lang } from '../i18n';
+import { anmat, type ProductSlug } from '../config';
+import type { SignalId } from '../scripts/signals';
+
+interface Props {
+  lang: Lang;
+  slug: ProductSlug;
+}
+
+const { lang, slug } = Astro.props;
+const d = t(lang);
+const p = d.product.pages[slug];
+const related = d.product.pages[p.related as ProductSlug];
+const alternates = Object.fromEntries(langs.map((l) => [l, productPath(l, slug)])) as Record<Lang, string>;
+const signal = p.signal as SignalId;
+const reg = anmat[slug];
+const frags: Record<ProductSlug, [FragmentKind, FragmentKind]> = {
+  anna: ['eyes', 'tests'],
+  thera: ['eyes', 'questionnaire'],
+  nexus: ['markers', 'pipeline'],
+  polygon: ['pipeline', 'markers'],
+};
+const [fragA, fragB] = frags[slug];
+const title = `${p.name}: ${p.tagline} | NecApp`;
+const clip = (text: string, max = 158) => {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+};
+const description = clip(p.lead);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: `${p.maker} ${p.name}`,
+    applicationCategory: 'HealthApplication',
+    description: p.lead,
+    brand: { '@type': 'Brand', name: p.maker },
+    offers: { '@type': 'Offer', seller: { '@type': 'Organization', name: 'NecApp' }, availability: 'https://schema.org/InStock' },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'NecApp', item: new URL(homePath(lang), Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: p.name, item: new URL(productPath(lang, slug), Astro.site).href },
+    ],
+  },
+];
+---
+
+<Base lang={lang} title={title} description={description} alternates={alternates} jsonLd={jsonLd}>
+  <div class="split">
+    <div class="column">
+      <section class="intro" data-hero data-signal-section={signal} aria-labelledby="p-title">
+        <h1 id="p-title" data-rise>
+          {p.name}
+          <span>{p.tagline}</span>
+        </h1>
+        <p class="lead" data-rise>{p.lead}</p>
+        <dl class="facts" data-rise>
+          <div>
+            <dt>{d.product.by}</dt>
+            <dd>{p.maker}</dd>
+          </div>
+          <div>
+            <dt>{p.class}</dt>
+            <dd>{d.product.anmat}{reg ? ` · ${reg}` : ''}</dd>
+          </div>
+        </dl>
+        <div class="actions" data-rise>
+          <a class="btn btn-primary" href="#cotizar">{d.form.quoteTitle}</a>
+          <a class="link-arrow" href="#folleto">{d.form.brochureTitle}</a>
+        </div>
+      </section>
+
+      <section class="block" data-reveal data-signal-section={signal} aria-labelledby="f-title">
+        <h2 id="f-title" data-rise>{d.product.features}</h2>
+        <ul class="features">
+          {p.features.map((f) => <li data-row>{f}</li>)}
+        </ul>
+        <UiFragment lang={lang} kind={fragA} />
+      </section>
+
+      <section class="block two" data-reveal data-signal-section={signal}>
+        <div>
+          <h2 id="a-title" data-rise>{d.product.audience}</h2>
+          <ul class="plain">
+            {p.audience.map((a) => <li data-row>{a}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 id="n-title" data-rise>{d.product.needs}</h2>
+          <ul class="plain">
+            {p.needs.map((a) => <li data-row>{a}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="block" data-reveal data-signal-section={signal} aria-label={p.name}>
+        <UiFragment lang={lang} kind={fragB} />
+        <p class="note" data-rise>{p.note}</p>
+        <p class="related" data-rise>
+          {d.product.related}{' '}
+          <a href={productPath(lang, p.related as ProductSlug)}>{related.name}: {related.tagline}</a>
+        </p>
+        <p class="related" data-rise>
+          <a class="link-arrow" href={`${homePath(lang)}#soluciones`}>{d.product.back}</a>
+        </p>
+      </section>
+    </div>
+
+    <Stage lang={lang} initial={signal} tabs={[signal]} />
+  </div>
+
+  <section class="quote" id="cotizar" data-reveal aria-labelledby="q-title">
+    <div class="quote-copy">
+      <h2 id="q-title" data-rise>{d.form.quoteTitle}</h2>
+      <p data-rise>{d.contact.statement}</p>
+    </div>
+    <div class="quote-form" data-rise>
+      <LeadForm lang={lang} variant="quote" product={slug} tone="navy" />
+    </div>
+  </section>
+
+  <section class="brochure" id="folleto" data-reveal aria-labelledby="b-title">
+    <div class="brochure-copy">
+      <h2 id="b-title" data-rise>{d.form.brochureTitle}</h2>
+      <p data-rise>{d.form.brochureText}</p>
+    </div>
+    <div data-rise>
+      <LeadForm lang={lang} variant="brochure" product={slug} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .column {
+    padding: 0 var(--margin) var(--gap-section);
+    min-width: 0;
+  }
+
+  .column > section {
+    max-width: 620px;
+  }
+
+  .intro {
+    min-height: calc(100svh - var(--header-h));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    padding: 40px 0 96px;
+  }
+
+  .back {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--ink-soft);
+    width: fit-content;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  h1 span {
+    display: block;
+    margin-top: 16px;
+    font-size: var(--step-sub);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 500;
+    color: var(--teal-ink);
+  }
+
+  .lead {
+    margin-top: 32px;
+    font-size: var(--step-lead);
+    line-height: 1.5;
+    max-width: 38ch;
+  }
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 40px;
+    margin: 32px 0 0;
+  }
+
+  .facts dt {
+    font-size: var(--step-small);
+    color: var(--ink-soft);
+  }
+
+  .facts dd {
+    margin: 2px 0 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px 32px;
+    margin-top: 40px;
+  }
+
+  .block {
+    padding-bottom: clamp(72px, 9vw, 128px);
+  }
+
+  .block h2 {
+    font-size: var(--step-sub);
+    margin-bottom: 28px;
+  }
+
+  .features {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 40px;
+  }
+
+  .features li {
+    padding: 18px 22px;
+    background: var(--paper-2);
+    font-size: var(--step-body);
+  }
+
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .two h2 {
+    font-size: var(--step-sub);
+    margin-bottom: 18px;
+  }
+
+  .plain {
+    display: grid;
+    gap: 12px;
+  }
+
+  .plain li {
+    padding-left: 22px;
+    position: relative;
+  }
+
+  .plain li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .note {
+    margin-top: 48px;
+    font-size: var(--step-lead);
+    line-height: 1.45;
+    max-width: 40ch;
+  }
+
+  .related {
+    margin-top: 28px;
+    font-family: var(--font-display);
+  }
+
+  .quote {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 24px;
+    padding: var(--gap-section) var(--margin);
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .quote-copy {
+    grid-column: 1 / span 4;
+    display: grid;
+    gap: 24px;
+    align-content: start;
+  }
+
+  .quote h2,
+  .brochure h2 {
+    font-size: var(--step-head);
+  }
+
+  .quote-copy p {
+    font-size: var(--step-lead);
+    max-width: 26ch;
+  }
+
+  .quote-form {
+    grid-column: 6 / -1;
+  }
+
+  .brochure {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 32px 24px;
+    padding: clamp(80px, 10vw, 140px) var(--margin);
+    background: var(--paper-2);
+  }
+
+  .brochure-copy {
+    grid-column: 1 / span 4;
+    display: grid;
+    gap: 16px;
+    align-content: start;
+  }
+
+  .brochure > div:last-child {
+    grid-column: 6 / -1;
+  }
+
+  @media (max-width: 1099px) {
+    .quote-copy,
+    .quote-form,
+    .brochure-copy,
+    .brochure > div:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .split {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .column {
+      position: relative;
+      z-index: 1;
+      background: var(--paper);
+    }
+
+    .intro {
+      min-height: 0;
+      padding: 36px 0 80px;
+    }
+
+    .two {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

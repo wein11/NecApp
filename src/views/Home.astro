@@ -1,0 +1,789 @@
+---
+import Base from '../layouts/Base.astro';
+import Stage from '../components/Stage.astro';
+import LeadForm from '../components/LeadForm.astro';
+import UiFragment from '../components/UiFragment.astro';
+import { t, langs, homePath, productPath, type Lang } from '../i18n';
+import { site, company, isPending, type ProductSlug } from '../config';
+import { clientes } from '../data/clientes';
+import type { SignalId } from '../scripts/signals';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const d = t(lang);
+const alternates = Object.fromEntries(langs.map((l) => [l, homePath(l)])) as Record<Lang, string>;
+const pages = d.product.pages;
+const wa = isPending(site.whatsapp) ? null : `https://wa.me/${site.whatsapp}`;
+const mail = isPending(site.email) ? null : site.email;
+const family = (slug: string) => (slug === 'anna' || slug === 'thera' ? 'neuro' : 'vicon');
+const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon');
+---
+
+<Base lang={lang} title={d.meta.title} description={d.meta.description} alternates={alternates}>
+  <div class="split">
+    <div class="column">
+      <section class="hero" data-hero data-signal-section="pulse" aria-labelledby="hero-title">
+        <h1 id="hero-title" data-rise>{d.hero.title}</h1>
+        <p class="lead" data-rise>{d.hero.lead}</p>
+        <div class="hero-actions" data-rise>
+          <a class="btn btn-primary" href="#contacto">{d.hero.primary}</a>
+          <a class="link-arrow" href="#soluciones">{d.hero.secondary}</a>
+        </div>
+      </section>
+
+      <section class="proof" data-reveal data-signal-section="pulse" aria-labelledby="proof-title">
+        <h2 id="proof-title" data-rise>{d.proof.title}</h2>
+        <div class="proof-cols" data-rise>
+          {
+            d.proof.groups.map((g) => (
+              <ul>
+                <li class="kind">{g.kind}</li>
+                {g.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            ))
+          }
+        </div>
+        <p class="in-use" data-rise>{d.proof.inUse}</p>
+      </section>
+
+      <section class="solutions" id="soluciones" aria-labelledby="sol-title">
+        <h2 id="sol-title" class="section-title">{d.solutions.title}</h2>
+        {
+          d.solutions.areas.map((area) => {
+            const prods = area.products as ProductSlug[];
+            return (
+              <article
+                class="area"
+                data-reveal
+                data-area
+                data-signal-section={pages[prods[0]].signal}
+                aria-labelledby={`area-${area.id}`}
+              >
+                <h3 id={`area-${area.id}`} data-rise>
+                  {area.title}
+                </h3>
+                <p class="area-text" data-rise>
+                  {area.text}
+                </p>
+                <UiFragment lang={lang} kind={area.id === 'equilibrio' ? 'battery' : 'markers'} />
+                <div class="product-tabs" role="tablist" aria-label={area.title} data-rise>
+                  {prods.map((slug, i) => (
+                    <button
+                      type="button"
+                      role="tab"
+                      id={`tab-${slug}`}
+                      aria-controls={`panel-${slug}`}
+                      aria-selected={i === 0 ? 'true' : 'false'}
+                      tabindex={i === 0 ? 0 : -1}
+                      data-product-tab={slug}
+                      data-show-signal={pages[slug].signal}
+                    >
+                      {pages[slug].name}
+                    </button>
+                  ))}
+                </div>
+                {prods.map((slug, i) => (
+                  <div
+                    class="product-panel"
+                    role="tabpanel"
+                    id={`panel-${slug}`}
+                    aria-labelledby={`tab-${slug}`}
+                    data-product-panel={slug}
+                    data-initial={i === 0 ? 'true' : 'false'}
+                    data-rise
+                  >
+                    <p class="product-name">
+                      {pages[slug].name}
+                      <span>{pages[slug].tagline}</span>
+                    </p>
+                    <p>{pages[slug].lead}</p>
+                    <div class="cells">
+                      <a class="cell cell-ink" href={productPath(lang, slug)}>
+                        {d.solutions.more(pages[slug].name)}
+                      </a>
+                      <a class="cell cell-tone" href={`${productPath(lang, slug)}#cotizar`}>
+                        {d.solutions.quote}
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </article>
+            );
+          })
+        }
+      </section>
+
+      <section class="audience" id="para-quien" data-reveal data-signal-section="gaze" aria-labelledby="aud-title">
+        <h2 id="aud-title" class="section-title" data-rise>{d.audience.title}</h2>
+        {
+          d.audience.groups.map((g) => (
+            <div class="group">
+              <h3 class="group-name" data-rise>
+                {g.name}
+              </h3>
+              <ul>
+                {g.rows.map(([name, value]) => (
+                  <li data-row>
+                    <span class="row-name">
+                      <span class:list={['dot', familyOf(value)]} aria-hidden="true" />
+                      {name}
+                    </span>
+                    <span class="row-value">{value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </section>
+    </div>
+
+    <Stage lang={lang} initial="pulse" tabs={['pulse', 'gait', 'nystagmus', 'gaze']} />
+  </div>
+
+  <section class="process" id="como-trabajamos" data-reveal aria-labelledby="proc-title">
+    <div class="process-copy">
+      <h2 id="proc-title" data-rise>{d.process.title}</h2>
+      <p data-rise>{d.process.text}</p>
+    </div>
+    <div class="slip-wrap" data-slip>
+    <div class="slip">
+      {
+        d.process.stages.map((s) => (
+          <div class="slip-group">
+            <h3>{s.name}</h3>
+            <ul>
+              {s.rows.map(([what, value]) => (
+                <li>
+                  <span>{what}</span>
+                  <span class="leader" aria-hidden="true" />
+                  <span class="slip-value">{value}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+      <p class="slip-result">
+        <span>{d.process.result[0]}</span>
+        <span>{d.process.result[1]}</span>
+      </p>
+    </div>
+    </div>
+  </section>
+
+  {
+    clientes.length > 0 && (
+      <section class="clients" data-reveal aria-labelledby="cli-title">
+        <h2 id="cli-title" class="section-title" data-rise>
+          {d.clients.title}
+        </h2>
+        <ul>
+          {clientes.map((c) => (
+            <li data-rise>
+              {c.cita && <blockquote>{c.cita[lang]}</blockquote>}
+              <p class="client-name">{c.institucion}</p>
+              {c.autor && (
+                <p class="client-author">
+                  {c.autor}
+                  {c.cargo && `, ${c.cargo[lang]}`}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="about" id="nosotros" data-reveal aria-labelledby="about-title">
+    <div class="letter">
+      <h2 id="about-title" data-rise>{d.about.title}</h2>
+      {d.about.paragraphs.map((p) => <p data-rise>{p}</p>)}
+      <p data-rise>{d.about.company(company.legalName, company.foundedYear, company.city)}</p>
+      <p class="sign" data-rise>
+        {d.about.sign}
+        <span>{company.legalName}</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="contact" id="contacto" data-reveal aria-labelledby="contact-title">
+    <div class="contact-copy">
+      <h2 id="contact-title" data-rise>{d.contact.title}</h2>
+      <p class="statement" data-rise>{d.contact.statement}</p>
+      {
+        (wa || mail) && (
+          <div class="direct" data-rise>
+            <p>{d.contact.or}</p>
+            {wa && (
+              <a href={wa} data-wa="contact" rel="noopener">
+                {d.contact.whatsapp}
+              </a>
+            )}
+            {mail && <a href={`mailto:${mail}`}>{d.contact.email}</a>}
+          </div>
+        )
+      }
+    </div>
+    <div class="contact-form" data-rise>
+      <LeadForm lang={lang} variant="contact" />
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Pestañas de producto dentro de cada área: sin JavaScript se ven ambos productos.
+  document.querySelectorAll<HTMLElement>('[data-area]').forEach((area) => {
+    const tabs = [...area.querySelectorAll<HTMLButtonElement>('[data-product-tab]')];
+    const panels = [...area.querySelectorAll<HTMLElement>('[data-product-panel]')];
+    panels.forEach((p) => (p.hidden = p.dataset.initial !== 'true'));
+    const select = (slug: string, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t.dataset.productTab === slug;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      panels.forEach((p) => (p.hidden = p.dataset.productPanel !== slug));
+      area.dataset.signalSection = tabs.find((t) => t.dataset.productTab === slug)?.dataset.showSignal;
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t.dataset.productTab!));
+      t.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        select(next.dataset.productTab!, true);
+        next.click();
+      });
+    });
+  });
+</script>
+
+<style>
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .column {
+    padding: 0 var(--margin) var(--gap-section);
+    min-width: 0;
+  }
+
+  .column > section {
+    max-width: 620px;
+  }
+
+  /* Hero */
+  .hero {
+    min-height: calc(100svh - var(--header-h));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 0 96px;
+  }
+
+  h1 {
+    font-size: var(--step-display);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  .lead {
+    margin-top: 36px;
+    font-size: var(--step-lead);
+    line-height: 1.5;
+    max-width: 34ch;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px 32px;
+    margin-top: 44px;
+  }
+
+  .hero-actions .link-arrow {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: var(--step-head);
+  }
+
+  /* Distribuidores */
+  .proof {
+    display: grid;
+    gap: 36px;
+    padding-bottom: var(--gap-section);
+  }
+
+  .proof h2 {
+    font-size: var(--step-sub);
+  }
+
+  .proof-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 28px 32px;
+  }
+
+  .proof-cols li {
+    font-family: var(--font-display);
+    font-size: var(--step-lead);
+    line-height: 1.5;
+  }
+
+  .proof-cols .kind {
+    color: var(--ink-soft);
+  }
+
+  .in-use {
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  /* Soluciones */
+  .solutions {
+    display: grid;
+    gap: clamp(72px, 9vw, 140px);
+    padding-bottom: var(--gap-section);
+  }
+
+  .area {
+    display: grid;
+    gap: 24px;
+  }
+
+  .area h3 {
+    font-size: var(--step-sub);
+  }
+
+  .area-text {
+    max-width: 46ch;
+  }
+
+  .product-tabs {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .product-tabs button {
+    flex: 1;
+    min-height: 56px;
+    border: 0;
+    background: var(--paper-2);
+    color: var(--ink-soft);
+    font: 500 1rem / 1 var(--font-display);
+    cursor: pointer;
+    transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+  }
+
+  .product-tabs button:hover {
+    color: var(--navy);
+  }
+
+  .product-tabs button[aria-selected='true'] {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .product-panel {
+    display: grid;
+    gap: 20px;
+    padding: 28px 0 0;
+  }
+
+  .product-panel[hidden] {
+    display: none;
+  }
+
+  .product-name {
+    font-family: var(--font-display);
+    font-size: var(--step-sub);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .product-name span {
+    display: block;
+    font-size: var(--step-body);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--teal-ink);
+    margin-top: 6px;
+  }
+
+  .cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    min-height: 72px;
+    padding: 0 22px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+  }
+
+  .cell-ink {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .cell-ink:hover {
+    background: var(--teal);
+    color: var(--navy-deep);
+  }
+
+  .cell-tone {
+    background: var(--paper-2);
+    color: var(--navy);
+  }
+
+  .cell-tone:hover {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  /* Para quién */
+  .audience {
+    display: grid;
+    gap: 44px;
+    max-width: 560px;
+  }
+
+  .group {
+    display: grid;
+    gap: 10px;
+  }
+
+  .group-name {
+    font-family: var(--font-text);
+    font-size: var(--step-body);
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+  }
+
+  .group li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    min-height: 40px;
+    padding: 6px 0;
+  }
+
+  .row-name {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .dot {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transform: translateY(1px);
+  }
+
+  .dot.neuro {
+    background: var(--teal);
+  }
+
+  .dot.vicon {
+    background: var(--navy);
+  }
+
+  .row-value {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: var(--step-small);
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Cómo trabajamos */
+  .process {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 24px;
+    padding: var(--gap-section) var(--margin);
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .process-copy {
+    grid-column: 1 / span 5;
+    display: grid;
+    gap: 28px;
+    align-content: start;
+  }
+
+  .process h2 {
+    font-size: var(--step-head);
+  }
+
+  .process-copy p {
+    max-width: 30ch;
+    font-size: var(--step-lead);
+  }
+
+  .slip-wrap {
+    grid-column: 7 / span 5;
+  }
+
+  .slip {
+    background: var(--paper);
+    color: var(--navy);
+    padding: 40px 36px 64px;
+    clip-path: polygon(
+      0 0, 100% 0, 100% calc(100% - 14px),
+      95% 100%, 90% calc(100% - 14px), 85% 100%, 80% calc(100% - 14px), 75% 100%, 70% calc(100% - 14px),
+      65% 100%, 60% calc(100% - 14px), 55% 100%, 50% calc(100% - 14px), 45% 100%, 40% calc(100% - 14px),
+      35% 100%, 30% calc(100% - 14px), 25% 100%, 20% calc(100% - 14px), 15% 100%, 10% calc(100% - 14px),
+      5% 100%, 0 calc(100% - 14px)
+    );
+  }
+
+  .slip-group + .slip-group {
+    margin-top: 28px;
+  }
+
+  .slip h3 {
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .slip li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 1rem;
+  }
+
+  .leader {
+    flex: 1;
+    min-width: 24px;
+    border-bottom: 4px dotted var(--ink-soft);
+    opacity: 0.45;
+  }
+
+  .slip-value {
+    font-family: var(--font-display);
+    font-size: var(--step-small);
+    font-weight: 500;
+    color: var(--teal-ink);
+    white-space: nowrap;
+  }
+
+  .slip-result {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 32px -36px 0;
+    padding: 14px 36px;
+    background: var(--navy);
+    color: var(--on-navy);
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  /* Clientes */
+  .clients {
+    padding: var(--gap-section) var(--margin) 0;
+  }
+
+  .clients ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: 48px;
+    margin-top: 48px;
+  }
+
+  .clients blockquote {
+    margin: 0 0 20px;
+    font-size: var(--step-lead);
+  }
+
+  .client-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+
+  .client-author {
+    color: var(--ink-soft);
+  }
+
+  /* Nosotros */
+  .about {
+    padding: var(--gap-section) var(--margin);
+  }
+
+  .letter {
+    max-width: 600px;
+    margin: 0 auto;
+    display: grid;
+    gap: 24px;
+  }
+
+  .letter h2 {
+    font-size: var(--step-head);
+    margin-bottom: 12px;
+  }
+
+  .letter p {
+    font-size: var(--step-body);
+  }
+
+  .letter p:nth-of-type(1) {
+    font-size: var(--step-lead);
+    line-height: 1.45;
+  }
+
+  .sign {
+    margin-top: 12px;
+    font-family: var(--font-display);
+    font-size: var(--step-lead);
+    font-weight: 500;
+  }
+
+  .sign span {
+    display: block;
+    font-family: var(--font-text);
+    font-size: var(--step-small);
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+
+  /* Contacto */
+  .contact {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 24px;
+    padding: var(--gap-section) var(--margin);
+    background: var(--paper-2);
+  }
+
+  .contact-copy {
+    grid-column: 1 / span 5;
+    display: grid;
+    gap: 28px;
+    align-content: start;
+  }
+
+  .contact h2 {
+    font-size: var(--step-head);
+  }
+
+  .statement {
+    font-size: var(--step-lead);
+    line-height: 1.3;
+    max-width: 24ch;
+  }
+
+  .direct {
+    display: grid;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .direct p {
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  .direct a {
+    font-size: inherit;
+    width: fit-content;
+  }
+
+  .contact-form {
+    grid-column: 7 / -1;
+  }
+
+  @media (max-width: 1099px) {
+    .process-copy,
+    .contact-copy {
+      grid-column: 1 / -1;
+    }
+
+    .slip-wrap,
+    .contact-form {
+      grid-column: 1 / -1;
+    }
+
+    .slip-wrap {
+      max-width: 520px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .split {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .split :global(.stage) {
+      z-index: 0;
+    }
+
+    .column {
+      position: relative;
+      z-index: 1;
+      background: var(--paper);
+      padding-top: 8px;
+    }
+
+    .hero {
+      min-height: 0;
+      padding: 40px 0 88px;
+    }
+
+    .lead {
+      margin-top: 24px;
+    }
+
+    .hero-actions {
+      margin-top: 32px;
+    }
+
+    .cells {
+      grid-template-columns: 1fr;
+    }
+
+    .cell {
+      min-height: 60px;
+    }
+
+    .slip {
+      padding: 32px 22px 56px;
+    }
+
+    .slip-result {
+      margin: 28px -22px 0;
+      padding: 14px 22px;
+    }
+  }
+</style>

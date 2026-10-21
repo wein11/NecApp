@@ -1,0 +1,330 @@
+---
+import { t, type Lang } from '../i18n';
+import { site, isPending, type ProductSlug } from '../config';
+
+interface Props {
+  lang: Lang;
+  variant: 'contact' | 'quote' | 'brochure';
+  product?: ProductSlug;
+  tone?: 'paper' | 'navy';
+}
+
+const { lang, variant, product, tone = 'paper' } = Astro.props;
+const f = t(lang).form;
+const products = t(lang).product.pages;
+const id = (name: string) => `${variant}-${name}`;
+const pending = isPending(site.web3formsKey);
+const reason = variant === 'brochure' ? 'brochure' : variant === 'quote' ? 'quote' : 'demo';
+const subject = `NecApp | ${f.reasons[reason]}${product ? ` | ${products[product].name}` : ''} | ${lang.toUpperCase()}`;
+const messages = {
+  required: f.required,
+  invalidEmail: f.invalidEmail,
+  sending: f.sending,
+  success: variant === 'brochure' ? f.brochureSuccess : f.success,
+  error: f.error,
+  pending: f.pending,
+};
+const full = variant !== 'brochure';
+---
+
+<form
+  class:list={['lead-form', `tone-${tone}`, `variant-${variant}`]}
+  action="https://api.web3forms.com/submit"
+  method="POST"
+  data-lead-form={variant}
+  data-pending={pending ? 'true' : 'false'}
+  data-messages={JSON.stringify(messages)}
+>
+  <input type="hidden" name="access_key" value={site.web3formsKey} />
+  <input type="hidden" name="subject" value={subject} />
+  <input type="hidden" name="from_name" value="NecApp web" />
+  <input type="hidden" name="idioma" value={lang} />
+  <input type="checkbox" name="botcheck" class="visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  {variant !== 'contact' && <input type="hidden" name="motivo" value={reason} />}
+  {product && <input type="hidden" name="producto" value={products[product].name} />}
+
+  <div class="fields">
+    <div class="field">
+      <label for={id('nombre')}>{f.name}</label>
+      <input id={id('nombre')} name="nombre" type="text" autocomplete="name" required />
+      <p class="error" data-error-for="nombre" aria-live="polite"></p>
+    </div>
+
+    <div class="field">
+      <label for={id('email')}>{f.email}</label>
+      <input id={id('email')} name="email" type="email" autocomplete="email" inputmode="email" required />
+      <p class="error" data-error-for="email" aria-live="polite"></p>
+    </div>
+
+    {
+      full && (
+        <>
+          <div class="field">
+            <label for={id('telefono')}>
+              {f.phone} <span class="optional">({f.optional})</span>
+            </label>
+            <input id={id('telefono')} name="telefono" type="tel" autocomplete="tel" inputmode="tel" />
+          </div>
+
+          <div class="field">
+            <label for={id('institucion')}>{f.institution}</label>
+            <input id={id('institucion')} name="institucion" type="text" autocomplete="organization" required />
+            <p class="error" data-error-for="institucion" aria-live="polite" />
+          </div>
+
+          <div class="field">
+            <label for={id('rol')}>{f.role}</label>
+            <select id={id('rol')} name="rol" required>
+              <option value="" />
+              {f.roles.map((r) => (
+                <option>{r}</option>
+              ))}
+            </select>
+            <p class="error" data-error-for="rol" aria-live="polite" />
+          </div>
+
+          <div class="field">
+            <label for={id('pais')}>{f.country}</label>
+            <input id={id('pais')} name="pais" type="text" autocomplete="country-name" required />
+            <p class="error" data-error-for="pais" aria-live="polite" />
+          </div>
+        </>
+      )
+    }
+
+    {
+      variant === 'contact' && (
+        <>
+          <div class="field">
+            <label for={id('producto')}>{f.product}</label>
+            <select id={id('producto')} name="producto">
+              {Object.values(products).map((p) => (
+                <option>{p.name}</option>
+              ))}
+              <option selected>{f.productUnknown}</option>
+            </select>
+          </div>
+
+          <fieldset class="field reasons">
+            <legend>{f.reason}</legend>
+            {(['demo', 'quote', 'brochure'] as const).map((r, i) => (
+              <label class="choice">
+                <input type="radio" name="motivo" value={r} checked={i === 0} />
+                <span>{f.reasons[r]}</span>
+              </label>
+            ))}
+          </fieldset>
+        </>
+      )
+    }
+
+    {
+      full && (
+        <div class="field wide">
+          <label for={id('mensaje')}>
+            {f.message} <span class="optional">({f.optional})</span>
+          </label>
+          <textarea id={id('mensaje')} name="mensaje" rows="4" placeholder={f.messagePlaceholder} />
+        </div>
+      )
+    }
+  </div>
+
+  <div class="actions">
+    <button class:list={['btn', tone === 'navy' ? 'btn-on-navy' : 'btn-primary']} type="submit">
+      {variant === 'brochure' ? f.brochureSubmit : f.submit}
+    </button>
+    <p class="privacy">{f.privacy}</p>
+  </div>
+  <p class="status" data-status role="status"></p>
+</form>
+
+<style>
+  .lead-form {
+    --field-bg: #fbfcfd;
+    --field-ink: var(--navy);
+    --label: var(--navy);
+    --soft: var(--ink-soft);
+  }
+
+  .tone-navy {
+    --field-bg: var(--navy-deep);
+    --field-ink: var(--on-navy);
+    --label: var(--on-navy);
+    --soft: var(--on-navy-soft);
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 20px 24px;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+  }
+
+  .wide,
+  .reasons {
+    grid-column: 1 / -1;
+  }
+
+  label,
+  legend {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--label);
+  }
+
+  .optional {
+    font-weight: 400;
+    color: var(--soft);
+  }
+
+  input:not([type='radio']):not([type='checkbox']),
+  select,
+  textarea {
+    width: 100%;
+    min-height: 54px;
+    padding: 14px 16px;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--field-ink);
+    background: var(--field-bg);
+    border: 2px solid transparent;
+    border-radius: 0;
+    transition: border-color 0.2s var(--ease-out);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  ::placeholder {
+    color: var(--soft);
+    opacity: 1;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  [aria-invalid='true'] {
+    border-color: #b42318 !important;
+  }
+
+  .tone-navy [aria-invalid='true'] {
+    border-color: #ff9c8f !important;
+  }
+
+  .error {
+    min-height: 0;
+    font-size: var(--step-small);
+    color: #b42318;
+  }
+
+  .tone-navy .error {
+    color: #ffb4aa;
+  }
+
+  .error:empty {
+    display: none;
+  }
+
+  .reasons {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .reasons legend {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 0;
+  }
+
+  .choice {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .choice input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .choice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 20px;
+    background: var(--field-bg);
+    color: var(--field-ink);
+    font-weight: 400;
+    transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+
+  .choice input:checked + span {
+    background: var(--navy);
+    color: var(--on-navy);
+  }
+
+  .tone-navy .choice input:checked + span {
+    background: var(--teal);
+    color: var(--navy-deep);
+  }
+
+  .choice input:focus-visible + span {
+    outline: 3px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    margin-top: 28px;
+  }
+
+  .privacy {
+    font-size: var(--step-small);
+    color: var(--soft);
+  }
+
+  .status {
+    margin-top: 16px;
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  .status:empty {
+    display: none;
+  }
+
+  .status[data-state='ok'] {
+    color: var(--teal-ink);
+  }
+
+  .tone-navy .status[data-state='ok'] {
+    color: var(--teal-light);
+  }
+
+  .status[data-state='error'] {
+    color: #b42318;
+  }
+
+  .tone-navy .status[data-state='error'] {
+    color: #ffb4aa;
+  }
+</style>

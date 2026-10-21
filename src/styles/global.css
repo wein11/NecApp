@@ -1,0 +1,245 @@
+@import '@fontsource-variable/lexend/wght.css';
+@import '@fontsource-variable/literata/wght.css';
+
+:root {
+  /* Marca */
+  --navy: #032a5f;
+  --navy-deep: #021e45;
+  --navy-2: #0b3a75;
+  --teal: #039e8a;
+  --teal-ink: #00705f;
+  --teal-light: #4cc9b4;
+
+  /* Roles */
+  --paper: #f3f6f8;
+  --paper-2: #e4ebf1;
+  --ink: var(--navy);
+  --ink-soft: #3b5679;
+  --on-navy: #f3f6f8;
+  --on-navy-soft: #b9c8dc;
+
+  --font-display: 'Lexend Variable', 'Lexend', system-ui, sans-serif;
+  --font-text: 'Literata Variable', 'Literata', Georgia, serif;
+
+  --step-small: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --step-sub: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  --step-head: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --step-display: clamp(2rem, 1rem + 3.2vw, 3.5rem);
+
+  --margin: clamp(16px, 4vw, 56px);
+  --gap-section: clamp(96px, 12vw, 200px);
+  --header-h: 84px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius: 0;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-body);
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--teal-ink);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+  transition: color 0.2s var(--ease-out), text-decoration-color 0.2s var(--ease-out);
+}
+
+a:hover {
+  color: var(--navy);
+}
+
+::selection {
+  background: var(--teal);
+  color: var(--navy-deep);
+}
+
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 3px;
+}
+
+html {
+  scrollbar-color: var(--navy) var(--paper-2);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: var(--margin);
+  top: -100px;
+  z-index: 100;
+  background: var(--navy);
+  color: var(--on-navy);
+  padding: 12px 18px;
+  font-family: var(--font-display);
+}
+
+.skip:focus {
+  top: 12px;
+}
+
+/* Botones: rectángulos planos, esquinas rectas */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 56px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--teal);
+  color: var(--navy-deep);
+}
+
+.btn-primary:hover {
+  background: var(--navy);
+  color: var(--on-navy);
+}
+
+.btn-secondary {
+  background: var(--paper-2);
+  color: var(--navy);
+}
+
+.btn-secondary:hover {
+  background: var(--navy);
+  color: var(--on-navy);
+}
+
+.btn-on-navy {
+  background: var(--teal);
+  color: var(--navy-deep);
+}
+
+.btn-on-navy:hover {
+  background: var(--on-navy);
+  color: var(--navy);
+}
+
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.link-arrow {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--navy);
+  text-decoration-color: var(--teal);
+}
+
+.link-arrow::after {
+  content: '';
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  margin-left: 0.45em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12em) rotate(-45deg);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.link-arrow:hover::after {
+  transform: translate(0.2em, -0.12em) rotate(-45deg);
+}
+
+/* Entradas: el contenido es visible por defecto; el script solo agrega el movimiento */
+.js [data-rise] {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
