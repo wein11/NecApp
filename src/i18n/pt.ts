@@ -19,6 +19,8 @@ const pt: Dict = {
     language: 'Idioma',
   },
   hero: {
+    prefix: 'Software médico ',
+    lines: ['de classe mundial', 'para a vertigem', 'para reabilitar', 'para medir a marcha'],
     title: 'Software médico de classe mundial',
     lead: 'Implantado na América Latina. Levamos a hospitais, universidades e consultórios as ferramentas usadas pelos melhores centros do mundo, com instalação, treinamento e suporte no seu idioma.',
     primary: 'Agendar demo',
@@ -56,6 +58,12 @@ const pt: Dict = {
     inUse: 'Já em uso em hospitais de referência de Buenos Aires.',
   },
   solutions: {
+    photos: {
+      anna: 'Profissional avaliando uma paciente com os óculos do Anna',
+      thera: 'Paciente fazendo reabilitação vestibular com os óculos do Thera',
+      nexus: 'Atleta com marcadores de captura de movimento em posição de largada',
+      polygon: 'Relatório de análise de marcha no Polygon',
+    },
     title: 'Soluções',
     areas: [
       {
@@ -75,6 +83,9 @@ const pt: Dict = {
     quote: 'Pedir orçamento',
   },
   audience: {
+    lead: 'Para',
+    words: ['hospitais', 'universidades', 'alto rendimento', 'consultórios'],
+    photoAlt: 'Corredora com marcadores de captura de movimento em uma esteira',
     title: 'Para quem',
     groups: [
       {
@@ -107,6 +118,12 @@ const pt: Dict = {
         ],
       },
     ],
+  },
+  products: {
+    title: 'Nossos produtos',
+    text: 'Quatro ferramentas de fabricantes de referência, com a mesma equipe local por trás para instalar, ensinar a usar e responder quando for preciso.',
+    stackLabel: 'Produtos da NecApp',
+    hint: 'Arraste o cartão da frente ou espere ele mudar sozinho.',
   },
   process: {
     title: 'Como trabalhamos',
@@ -192,6 +209,7 @@ const pt: Dict = {
     pending: 'Formulário em configuração: enquanto isso, fale conosco pelo WhatsApp ou e-mail.',
   },
   product: {
+    gallery: 'Como é',
     back: 'Todas as soluções',
     by: 'Desenvolvido por',
     anmat: 'Registrado na ANMAT',
@@ -215,6 +233,7 @@ const pt: Dict = {
           'Acuidade visual dinâmica em realidade virtual',
           'Gráficos com marcação de nistagmo, comentários e relatório para impressão',
           'Menus de provas personalizáveis para cada serviço',
+          'Teste do impulso cefálico em vídeo (vHIT)',
         ],
         audience: [
           'Otorrinolaringologia',
@@ -228,6 +247,13 @@ const pt: Dict = {
           'Profissional treinado no exame e na interpretação dos resultados',
         ],
         note: 'Anna auxilia o profissional na avaliação de distúrbios vestibulares. O diagnóstico é sempre responsabilidade do médico.',
+        gallery: [
+          'Prova basal: nistagmo espontâneo',
+          'Prova oculomotora: nistagmo optocinético',
+          'Vertical e horizontal visual subjetiva',
+          'Prova calórica',
+          'Teste do impulso cefálico (vHIT)',
+        ],
         related: 'thera',
       },
       thera: {
@@ -256,6 +282,13 @@ const pt: Dict = {
           'Profissional treinado ou sob supervisão de um',
         ],
         note: 'Thera é uma ferramenta complementar para o profissional. Não se destina a diagnosticar, e as decisões de tratamento cabem sempre ao profissional de saúde.',
+        gallery: [
+          'Exercício de reabilitação em ambiente virtual',
+          'Questionário VADL',
+          'Histórico de questionários do paciente',
+          'Vertical e horizontal visual subjetiva',
+          'Resultados da vertical e horizontal visual subjetiva',
+        ],
         related: 'anna',
       },
       nexus: {
@@ -284,6 +317,13 @@ const pt: Dict = {
           'Equipe treinada na colocação de marcadores e no processamento',
         ],
         note: 'A precisão da análise depende da colocação correta dos marcadores. Por isso o treinamento faz parte de cada implantação.',
+        gallery: [
+          'Captura com marcadores no laboratório',
+          'Marcadores no corpo para o modelo biomecânico',
+          'Câmeras de captura de movimento',
+          'Câmera Vicon',
+          'Análise de movimento em tablet',
+        ],
         related: 'polygon',
       },
       polygon: {
@@ -306,52 +346,13 @@ const pt: Dict = {
         ],
         needs: ['Dados processados no Vicon Nexus', 'PC com Windows'],
         note: 'Polygon trabalha junto com o Nexus: a captura e o processamento são feitos no Nexus e o relatório no Polygon.',
+        gallery: [
+          'Relatório de análise de marcha no Polygon',
+          'Captura de corrida no laboratório',
+          'Análise da marcha em esteira',
+        ],
         related: 'nexus',
       },
-    },
-  },
-  fragments: {
-    sample: 'Ilustração',
-    battery: {
-      title: 'Bateria vestibular',
-      patient: 'Paciente de exemplo',
-      eyes: ['Olho direito', 'Olho esquerdo'],
-      rows: [
-        ['Nistagmo espontâneo', 'Registrado', 'done'],
-        ['Prova posicional direita', 'Registrado', 'done'],
-        ['Rastreio ocular', 'Em andamento', 'live'],
-        ['Prova calórica', 'Pendente', 'todo'],
-      ],
-    },
-    eyesTitle: 'Câmeras oculares dos óculos',
-    eyesMeta: 'Infravermelho · 2 olhos',
-    questionnaire: {
-      title: 'Questionário DHI',
-      meta: 'Inventário de incapacidade por tontura',
-      rows: [
-        ['Físico', '14 / 28'],
-        ['Emocional', '12 / 36'],
-        ['Funcional', '12 / 36'],
-      ],
-      total: 'Pontuação total',
-      score: '38 / 100',
-      band: 'Moderado',
-    },
-    pipeline: {
-      title: 'Processamento no Nexus',
-      meta: 'Prova de marcha 03',
-      rows: [
-        ['Reconstruir e rotular marcadores', 'Pronto', 'done'],
-        ['Preencher lacunas de trajetória', 'Pronto', 'done'],
-        ['Modelo Plug-in Gait', 'Processando', 'live'],
-        ['Exportar para o Polygon', 'Na fila', 'todo'],
-      ],
-    },
-    markers: {
-      title: 'Captura de marcha',
-      model: 'Modelo Plug-in Gait',
-      frame: 'Quadro 212 · 100 Hz',
-      labels: ['Pelve', 'Joelho', 'Tornozelo', 'Calcanhar'],
     },
   },
   footer: {

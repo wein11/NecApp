@@ -1,11 +1,6 @@
-import { initStage } from './stage-client';
-import { initMotion } from './motion';
 import { initForms } from './forms';
 import { initConsent } from './consent';
 
-document.documentElement.classList.add('js');
-initStage();
-initMotion();
 initForms();
 initConsent();
 

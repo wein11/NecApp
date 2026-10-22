@@ -1,0 +1,199 @@
+/* Monitor de señales */
+.stage {
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100svh - var(--header-h));
+  background: var(--navy);
+  color: var(--on-navy);
+  overflow: hidden;
+}
+
+.stage-inner {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: clamp(20px, 3vw, 44px);
+  gap: 16px;
+}
+
+.stage-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.stage-axis {
+  font-family: var(--font-display);
+  font-size: var(--step-small);
+  font-weight: 500;
+  color: var(--on-navy-soft);
+  letter-spacing: 0;
+}
+
+.stage-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--navy-deep);
+  padding: 4px;
+}
+
+.stage-tabs button {
+  font: 500 var(--step-small) / 1 var(--font-display);
+  color: var(--on-navy-soft);
+  background: transparent;
+  border: 0;
+  padding: 12px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
+}
+
+.stage-tabs button:hover {
+  color: var(--on-navy);
+}
+
+.stage-tabs button[aria-pressed='true'] {
+  background: var(--teal);
+  color: var(--navy-deep);
+}
+
+.stage-plot {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.stage-plot:focus-visible {
+  outline-color: var(--teal-light);
+  outline-offset: -3px;
+}
+
+.stage-plot svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+[data-layer] {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s var(--ease-out), visibility 0s linear 0.6s;
+}
+
+.stage[data-signal='pulse'] [data-layer='pulse'],
+.stage[data-signal='gait'] [data-layer='gait'],
+.stage[data-signal='report'] [data-layer='report'],
+.stage[data-signal='nystagmus'] [data-layer='nystagmus'],
+.stage[data-signal='gaze'] [data-layer='gaze'] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s var(--ease-out), visibility 0s;
+}
+
+.trace {
+  fill: none;
+  stroke: var(--teal-light);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.trace-soft {
+  stroke: var(--on-navy-soft);
+  stroke-width: 4;
+  stroke-dasharray: 2 12;
+}
+
+.band {
+  fill: var(--teal);
+  opacity: 0.22;
+}
+
+.swing-field {
+  fill: var(--navy-2);
+}
+
+.tick {
+  font-family: var(--font-display);
+  font-size: 22px;
+  fill: var(--on-navy-soft);
+}
+
+.tick.end {
+  text-anchor: end;
+}
+
+.cursor {
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+  pointer-events: none;
+}
+
+.stage[data-reading='true']:not([data-signal='pulse']) .cursor {
+  opacity: 1;
+}
+
+.cursor-bar {
+  fill: var(--on-navy-soft);
+  opacity: 0.5;
+}
+
+.cursor-dot {
+  fill: var(--teal-light);
+  stroke: var(--navy);
+  stroke-width: 4;
+}
+
+.cursor-dot2 {
+  fill: var(--on-navy);
+  stroke: var(--navy);
+  stroke-width: 4;
+  opacity: 0;
+}
+
+.stage[data-signal='report'] .cursor-dot2,
+.stage[data-signal='gaze'] .cursor-dot2 {
+  opacity: 1;
+}
+
+.stage-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 24px;
+}
+
+.readout {
+  font-family: var(--font-display);
+  font-size: var(--step-lead);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  min-height: 1.6em;
+}
+
+.caption {
+  font-size: var(--step-small);
+  color: var(--on-navy-soft);
+}
+
+@media (max-width: 899px) {
+  .stage {
+    height: 56svh;
+    min-height: 340px;
+  }
+
+  .stage-inner {
+    padding: 16px;
+  }
+
+  .tick {
+    font-size: 30px;
+  }
+}

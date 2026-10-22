@@ -243,3 +243,14 @@ html {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* AnimatedContent: oculto solo con JavaScript activo, hasta que GSAP lo muestra */
+.js [data-ac] {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-ac] {
+    visibility: visible;
+  }
+}

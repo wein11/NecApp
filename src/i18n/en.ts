@@ -19,6 +19,8 @@ const en: Dict = {
     language: 'Language',
   },
   hero: {
+    prefix: 'Medical software ',
+    lines: ['at world-class level', 'for vertigo', 'for rehabilitation', 'for gait analysis'],
     title: 'World-class medical software',
     lead: 'Delivered across Latin America. We bring hospitals, universities and private practices the tools the leading centres use, installed, taught and supported in your language.',
     primary: 'Book a demo',
@@ -56,6 +58,12 @@ const en: Dict = {
     inUse: 'Already in use at leading hospitals in Buenos Aires.',
   },
   solutions: {
+    photos: {
+      anna: 'Clinician assessing a patient wearing the Anna headset',
+      thera: 'Patient doing vestibular rehabilitation with the Thera headset',
+      nexus: 'Athlete with motion capture markers in a starting position',
+      polygon: 'Gait analysis report in Polygon',
+    },
     title: 'Solutions',
     areas: [
       {
@@ -75,6 +83,9 @@ const en: Dict = {
     quote: 'Request a quote',
   },
   audience: {
+    lead: 'For',
+    words: ['hospitals', 'universities', 'high performance', 'private practices'],
+    photoAlt: 'Runner with motion capture markers on a treadmill',
     title: 'Who it is for',
     groups: [
       {
@@ -107,6 +118,12 @@ const en: Dict = {
         ],
       },
     ],
+  },
+  products: {
+    title: 'Our products',
+    text: 'Four tools from leading manufacturers, with the same local team behind them to install, teach and answer when you need it.',
+    stackLabel: 'NecApp products',
+    hint: 'Drag the front card or wait for it to change.',
   },
   process: {
     title: 'How we work',
@@ -192,6 +209,7 @@ const en: Dict = {
     pending: 'This form is being set up: in the meantime, message us on WhatsApp or by email.',
   },
   product: {
+    gallery: 'What it looks like',
     back: 'All solutions',
     by: 'Made by',
     anmat: 'ANMAT registered',
@@ -215,6 +233,7 @@ const en: Dict = {
           'Dynamic visual acuity in virtual reality',
           'Result graphs with nystagmus marking, comments and printable report',
           'Custom test menus for each service',
+          'Video head impulse test (vHIT)',
         ],
         audience: [
           'ENT',
@@ -228,6 +247,13 @@ const en: Dict = {
           'A professional trained in the test and in reading the results',
         ],
         note: 'Anna assists clinicians in assessing vestibular disorders. Diagnosis always remains the physician’s responsibility.',
+        gallery: [
+          'Baseline test: spontaneous nystagmus',
+          'Oculomotor test: optokinetic nystagmus',
+          'Subjective visual vertical and horizontal',
+          'Caloric test',
+          'Video head impulse test (vHIT)',
+        ],
         related: 'thera',
       },
       thera: {
@@ -256,6 +282,13 @@ const en: Dict = {
           'A trained professional, or supervision by one',
         ],
         note: 'Thera is an adjunct tool for clinicians. It is not intended to diagnose, and treatment decisions always rest with a qualified healthcare professional.',
+        gallery: [
+          'Rehabilitation exercise in a virtual environment',
+          'VADL questionnaire',
+          'Patient questionnaire history',
+          'Subjective visual vertical and horizontal',
+          'Subjective visual vertical and horizontal results',
+        ],
         related: 'anna',
       },
       nexus: {
@@ -284,6 +317,13 @@ const en: Dict = {
           'A team trained in marker placement and processing',
         ],
         note: 'Analysis accuracy depends on correct marker placement. That is why training is part of every implementation.',
+        gallery: [
+          'Marker-based capture in the lab',
+          'Body markers for the biomechanical model',
+          'Motion capture cameras',
+          'Vicon camera',
+          'Motion analysis on a tablet',
+        ],
         related: 'polygon',
       },
       polygon: {
@@ -306,52 +346,13 @@ const en: Dict = {
         ],
         needs: ['Data processed in Vicon Nexus', 'Windows PC'],
         note: 'Polygon works with Nexus: capture and processing happen in Nexus, the report in Polygon.',
+        gallery: [
+          'Gait analysis report in Polygon',
+          'Running capture in the lab',
+          'Treadmill gait analysis',
+        ],
         related: 'nexus',
       },
-    },
-  },
-  fragments: {
-    sample: 'Illustration',
-    battery: {
-      title: 'Vestibular test battery',
-      patient: 'Sample patient',
-      eyes: ['Right eye', 'Left eye'],
-      rows: [
-        ['Spontaneous nystagmus', 'Recorded', 'done'],
-        ['Right positional test', 'Recorded', 'done'],
-        ['Smooth pursuit', 'In progress', 'live'],
-        ['Caloric test', 'Pending', 'todo'],
-      ],
-    },
-    eyesTitle: 'Headset eye cameras',
-    eyesMeta: 'Infrared · both eyes',
-    questionnaire: {
-      title: 'DHI questionnaire',
-      meta: 'Dizziness Handicap Inventory',
-      rows: [
-        ['Physical', '14 / 28'],
-        ['Emotional', '12 / 36'],
-        ['Functional', '12 / 36'],
-      ],
-      total: 'Total score',
-      score: '38 / 100',
-      band: 'Moderate',
-    },
-    pipeline: {
-      title: 'Processing in Nexus',
-      meta: 'Gait trial 03',
-      rows: [
-        ['Reconstruct and label markers', 'Done', 'done'],
-        ['Fill trajectory gaps', 'Done', 'done'],
-        ['Plug-in Gait model', 'Running', 'live'],
-        ['Export to Polygon', 'Queued', 'todo'],
-      ],
-    },
-    markers: {
-      title: 'Gait capture',
-      model: 'Plug-in Gait model',
-      frame: 'Frame 212 · 100 Hz',
-      labels: ['Pelvis', 'Knee', 'Ankle', 'Heel'],
     },
   },
   footer: {

@@ -1,12 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
-import Stage from '../components/Stage.astro';
 import LeadForm from '../components/LeadForm.astro';
-import UiFragment from '../components/UiFragment.astro';
+import Stage from '../components/react/Stage.jsx';
+import HeroTitle from '../components/react/HeroTitle.jsx';
+import AudienceTitle from '../components/react/AudienceTitle.jsx';
+import RevealText from '../components/react/RevealText.jsx';
+import ProductStack from '../components/react/ProductStack.jsx';
+import AnimatedContent from '../components/react/AnimatedContent.jsx';
 import { t, langs, homePath, productPath, type Lang } from '../i18n';
+import { stageText } from '../i18n/stage';
 import { site, company, isPending, type ProductSlug } from '../config';
 import { clientes } from '../data/clientes';
-import type { SignalId } from '../scripts/signals';
+import { productPhoto, stack, logos, audiencePhoto } from '../data/media';
 
 interface Props {
   lang: Lang;
@@ -18,40 +23,44 @@ const alternates = Object.fromEntries(langs.map((l) => [l, homePath(l)])) as Rec
 const pages = d.product.pages;
 const wa = isPending(site.whatsapp) ? null : `https://wa.me/${site.whatsapp}`;
 const mail = isPending(site.email) ? null : site.email;
-const family = (slug: string) => (slug === 'anna' || slug === 'thera' ? 'neuro' : 'vicon');
 const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon');
+const slugs: ProductSlug[] = ['anna', 'thera', 'nexus', 'polygon'];
+const stackItems = slugs.map((s) => ({
+  title: pages[s].name,
+  tag: pages[s].tagline,
+  image: stack[s].src,
+  alt: d.solutions.photos[s],
+  href: productPath(lang, s),
+}));
+// Entrada suave y corta para el contenido (reemplaza las anteriores).
+const enter = { distance: 32, duration: 0.9, ease: 'power3.out', stagger: 0.08, threshold: 0.15 };
 ---
 
 <Base lang={lang} title={d.meta.title} description={d.meta.description} alternates={alternates}>
   <div class="split">
     <div class="column">
-      <section class="hero" data-hero data-signal-section="pulse" aria-labelledby="hero-title">
-        <h1 id="hero-title" data-rise>{d.hero.title}</h1>
-        <p class="lead" data-rise>{d.hero.lead}</p>
-        <div class="hero-actions" data-rise>
+      <section class="hero" data-signal-section="pulse" aria-labelledby="hero-title">
+        <HeroTitle client:load id="hero-title" prefix={d.hero.prefix} lines={d.hero.lines} />
+        <p class="lead">{d.hero.lead}</p>
+        <div class="hero-actions">
           <a class="btn btn-primary" href="#contacto">{d.hero.primary}</a>
           <a class="link-arrow" href="#soluciones">{d.hero.secondary}</a>
         </div>
       </section>
 
-      <section class="proof" data-reveal data-signal-section="pulse" aria-labelledby="proof-title">
-        <h2 id="proof-title" data-rise>{d.proof.title}</h2>
-        <div class="proof-cols" data-rise>
-          {
-            d.proof.groups.map((g) => (
-              <ul>
-                <li class="kind">{g.kind}</li>
-                {g.items.map((i) => (
-                  <li>{i}</li>
-                ))}
-              </ul>
-            ))
-          }
-        </div>
-        <p class="in-use" data-rise>{d.proof.inUse}</p>
+      <section class="proof" data-signal-section="pulse" aria-labelledby="proof-title">
+        <AnimatedContent client:load {...enter}>
+          <h2 id="proof-title">{d.proof.title}</h2>
+          <div class="brand-logos">
+            <img src={logos.vicon.src} alt="Vicon" width={logos.vicon.w} height={logos.vicon.h} />
+            <img src={logos.neuroears.src} alt="NeuroEars" width={logos.neuroears.w} height={logos.neuroears.h} />
+          </div>
+          <p class="proof-line">{d.proof.groups[2].items.join(' · ')}</p>
+          <p class="in-use">{d.proof.inUse}</p>
+        </AnimatedContent>
       </section>
 
-      <section class="solutions" id="soluciones" aria-labelledby="sol-title">
+      <section class="areas" id="soluciones" aria-labelledby="sol-title">
         <h2 id="sol-title" class="section-title">{d.solutions.title}</h2>
         {
           d.solutions.areas.map((area) => {
@@ -59,76 +68,80 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
             return (
               <article
                 class="area"
-                data-reveal
-                data-area
                 data-signal-section={pages[prods[0]].signal}
                 aria-labelledby={`area-${area.id}`}
               >
-                <h3 id={`area-${area.id}`} data-rise>
-                  {area.title}
-                </h3>
-                <p class="area-text" data-rise>
-                  {area.text}
-                </p>
-                <UiFragment lang={lang} kind={area.id === 'equilibrio' ? 'battery' : 'markers'} />
-                <div class="product-tabs" role="tablist" aria-label={area.title} data-rise>
-                  {prods.map((slug, i) => (
-                    <button
-                      type="button"
-                      role="tab"
-                      id={`tab-${slug}`}
-                      aria-controls={`panel-${slug}`}
-                      aria-selected={i === 0 ? 'true' : 'false'}
-                      tabindex={i === 0 ? 0 : -1}
-                      data-product-tab={slug}
-                      data-show-signal={pages[slug].signal}
-                    >
-                      {pages[slug].name}
-                    </button>
-                  ))}
-                </div>
-                {prods.map((slug, i) => (
-                  <div
-                    class="product-panel"
-                    role="tabpanel"
-                    id={`panel-${slug}`}
-                    aria-labelledby={`tab-${slug}`}
-                    data-product-panel={slug}
-                    data-initial={i === 0 ? 'true' : 'false'}
-                    data-rise
-                  >
-                    <p class="product-name">
-                      {pages[slug].name}
-                      <span>{pages[slug].tagline}</span>
-                    </p>
-                    <p>{pages[slug].lead}</p>
-                    <div class="cells">
-                      <a class="cell cell-ink" href={productPath(lang, slug)}>
-                        {d.solutions.more(pages[slug].name)}
+                <AnimatedContent client:load {...enter}>
+                  <h3 id={`area-${area.id}`}>{area.title}</h3>
+                  <p class="area-text">{area.text}</p>
+                  <div class="area-photos">
+                    {prods.map((slug) => (
+                      <a
+                        class:list={['area-photo', { contain: productPhoto[slug].w / productPhoto[slug].h > 1.4 }]}
+                        href={productPath(lang, slug)}
+                        data-show-signal={pages[slug].signal}
+                      >
+                        <img
+                          src={productPhoto[slug].src}
+                          alt={d.solutions.photos[slug]}
+                          width={productPhoto[slug].w}
+                          height={productPhoto[slug].h}
+                          loading="lazy"
+                        />
+                        <span class="area-photo-name">
+                          {pages[slug].name}
+                          <span>{pages[slug].tagline}</span>
+                        </span>
                       </a>
-                      <a class="cell cell-tone" href={`${productPath(lang, slug)}#cotizar`}>
-                        {d.solutions.quote}
-                      </a>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                </AnimatedContent>
               </article>
             );
           })
         }
       </section>
+    </div>
 
-      <section class="audience" id="para-quien" data-reveal data-signal-section="gaze" aria-labelledby="aud-title">
-        <h2 id="aud-title" class="section-title" data-rise>{d.audience.title}</h2>
+    <Stage client:load initial="pulse" tabs={['pulse', 'gait', 'nystagmus', 'gaze']} text={stageText(lang)} />
+  </div>
+
+  <section class="products" aria-labelledby="prod-title">
+    <div class="products-copy">
+      <AnimatedContent client:load {...enter}>
+        <h2 id="prod-title">{d.products.title}</h2>
+        <p>{d.products.text}</p>
+        <ul class="product-list">
+          {
+            slugs.map((s) => (
+              <li>
+                <a href={productPath(lang, s)}>
+                  <span class="pl-name">{pages[s].name}</span>
+                  <span class="pl-tag">{pages[s].tagline}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="hint">{d.products.hint}</p>
+      </AnimatedContent>
+    </div>
+    <div class="products-stack" data-ui>
+      <ProductStack client:visible items={stackItems} label={d.products.stackLabel} />
+    </div>
+  </section>
+
+  <section class="audience" id="para-quien" aria-labelledby="aud-title">
+    <div class="audience-copy">
+      <AudienceTitle client:load id="aud-title" lead={d.audience.lead} words={d.audience.words} />
+      <AnimatedContent client:load {...enter} className="audience-groups">
         {
           d.audience.groups.map((g) => (
             <div class="group">
-              <h3 class="group-name" data-rise>
-                {g.name}
-              </h3>
+              <h3 class="group-name">{g.name}</h3>
               <ul>
                 {g.rows.map(([name, value]) => (
-                  <li data-row>
+                  <li>
                     <span class="row-name">
                       <span class:list={['dot', familyOf(value)]} aria-hidden="true" />
                       {name}
@@ -140,52 +153,53 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
             </div>
           ))
         }
-      </section>
+      </AnimatedContent>
     </div>
+    <figure class="audience-photo">
+      <img src={audiencePhoto.src} alt={d.audience.photoAlt} width={audiencePhoto.w} height={audiencePhoto.h} loading="lazy" />
+    </figure>
+  </section>
 
-    <Stage lang={lang} initial="pulse" tabs={['pulse', 'gait', 'nystagmus', 'gaze']} />
-  </div>
-
-  <section class="process" id="como-trabajamos" data-reveal aria-labelledby="proc-title">
+  <section class="process" id="como-trabajamos" aria-labelledby="proc-title">
     <div class="process-copy">
-      <h2 id="proc-title" data-rise>{d.process.title}</h2>
-      <p data-rise>{d.process.text}</p>
+      <h2 id="proc-title">{d.process.title}</h2>
+      <p>{d.process.text}</p>
     </div>
-    <div class="slip-wrap" data-slip>
-    <div class="slip">
-      {
-        d.process.stages.map((s) => (
-          <div class="slip-group">
-            <h3>{s.name}</h3>
-            <ul>
-              {s.rows.map(([what, value]) => (
-                <li>
-                  <span>{what}</span>
-                  <span class="leader" aria-hidden="true" />
-                  <span class="slip-value">{value}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
-      <p class="slip-result">
-        <span>{d.process.result[0]}</span>
-        <span>{d.process.result[1]}</span>
-      </p>
-    </div>
-    </div>
+    <AnimatedContent client:load distance={48} duration={1} ease="power3.out" className="slip-wrap">
+      <div class="slip">
+        {
+          d.process.stages.map((s) => (
+            <div class="slip-group">
+              <h3>{s.name}</h3>
+              <ul>
+                {s.rows.map(([what, value]) => (
+                  <li>
+                    <span>{what}</span>
+                    <span class="leader" aria-hidden="true" />
+                    <span class="slip-value">{value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+        <p class="slip-result">
+          <span>{d.process.result[0]}</span>
+          <span>{d.process.result[1]}</span>
+        </p>
+      </div>
+    </AnimatedContent>
   </section>
 
   {
     clientes.length > 0 && (
-      <section class="clients" data-reveal aria-labelledby="cli-title">
-        <h2 id="cli-title" class="section-title" data-rise>
+      <section class="clients" aria-labelledby="cli-title">
+        <h2 id="cli-title" class="section-title">
           {d.clients.title}
         </h2>
         <ul>
           {clientes.map((c) => (
-            <li data-rise>
+            <li>
               {c.cita && <blockquote>{c.cita[lang]}</blockquote>}
               <p class="client-name">{c.institucion}</p>
               {c.autor && (
@@ -201,25 +215,26 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     )
   }
 
-  <section class="about" id="nosotros" data-reveal aria-labelledby="about-title">
+  <section class="about" id="nosotros" aria-labelledby="about-title">
     <div class="letter">
-      <h2 id="about-title" data-rise>{d.about.title}</h2>
-      {d.about.paragraphs.map((p) => <p data-rise>{p}</p>)}
-      <p data-rise>{d.about.company(company.legalName, company.foundedYear, company.city)}</p>
-      <p class="sign" data-rise>
+      <h2 id="about-title">{d.about.title}</h2>
+      <RevealText client:visible text={d.about.paragraphs[0]} className="reveal-statement" />
+      {d.about.paragraphs.slice(1).map((p) => <p>{p}</p>)}
+      <p>{d.about.company(company.legalName, company.foundedYear, company.city)}</p>
+      <p class="sign">
         {d.about.sign}
         <span>{company.legalName}</span>
       </p>
     </div>
   </section>
 
-  <section class="contact" id="contacto" data-reveal aria-labelledby="contact-title">
+  <section class="contact" id="contacto" aria-labelledby="contact-title">
     <div class="contact-copy">
-      <h2 id="contact-title" data-rise>{d.contact.title}</h2>
-      <p class="statement" data-rise>{d.contact.statement}</p>
+      <h2 id="contact-title">{d.contact.title}</h2>
+      <p class="statement">{d.contact.statement}</p>
       {
         (wa || mail) && (
-          <div class="direct" data-rise>
+          <div class="direct">
             <p>{d.contact.or}</p>
             {wa && (
               <a href={wa} data-wa="contact" rel="noopener">
@@ -231,39 +246,11 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
         )
       }
     </div>
-    <div class="contact-form" data-rise>
+    <div class="contact-form">
       <LeadForm lang={lang} variant="contact" />
     </div>
   </section>
 </Base>
-
-<script>
-  // Pestañas de producto dentro de cada área: sin JavaScript se ven ambos productos.
-  document.querySelectorAll<HTMLElement>('[data-area]').forEach((area) => {
-    const tabs = [...area.querySelectorAll<HTMLButtonElement>('[data-product-tab]')];
-    const panels = [...area.querySelectorAll<HTMLElement>('[data-product-panel]')];
-    panels.forEach((p) => (p.hidden = p.dataset.initial !== 'true'));
-    const select = (slug: string, focus = false) => {
-      tabs.forEach((t) => {
-        const on = t.dataset.productTab === slug;
-        t.setAttribute('aria-selected', String(on));
-        t.tabIndex = on ? 0 : -1;
-        if (on && focus) t.focus();
-      });
-      panels.forEach((p) => (p.hidden = p.dataset.productPanel !== slug));
-      area.dataset.signalSection = tabs.find((t) => t.dataset.productTab === slug)?.dataset.showSignal;
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => select(t.dataset.productTab!));
-      t.addEventListener('keydown', (e) => {
-        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-        const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
-        select(next.dataset.productTab!, true);
-        next.click();
-      });
-    });
-  });
-</script>
 
 <style>
   .split {
@@ -278,7 +265,7 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
   }
 
   .column > section {
-    max-width: 620px;
+    max-width: 640px;
   }
 
   /* Hero */
@@ -290,10 +277,20 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     padding: 48px 0 96px;
   }
 
-  h1 {
+  .hero :global(.hero-title) {
     font-size: var(--step-display);
-    line-height: 1;
+    line-height: 1.04;
     letter-spacing: -0.035em;
+    min-height: 2.1em;
+    display: block;
+  }
+
+  .hero :global(.text-type__prefix) {
+    display: block;
+  }
+
+  .hero :global(.text-type__content > span:not(.text-type__prefix)) {
+    color: var(--teal-ink);
   }
 
   .lead {
@@ -321,8 +318,6 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
 
   /* Distribuidores */
   .proof {
-    display: grid;
-    gap: 36px;
     padding-bottom: var(--gap-section);
   }
 
@@ -330,37 +325,34 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     font-size: var(--step-sub);
   }
 
-  .proof-cols {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 28px 32px;
+  .brand-logos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 28px 56px;
+    margin: 36px 0 28px;
   }
 
-  .proof-cols li {
+  .brand-logos img {
+    height: 44px;
+    width: auto;
+  }
+
+  .proof-line {
     font-family: var(--font-display);
-    font-size: var(--step-lead);
-    line-height: 1.5;
-  }
-
-  .proof-cols .kind {
-    color: var(--ink-soft);
+    font-weight: 500;
   }
 
   .in-use {
+    margin-top: 8px;
     font-style: italic;
     color: var(--ink-soft);
   }
 
-  /* Soluciones */
-  .solutions {
+  /* Áreas con fotos */
+  .areas {
     display: grid;
-    gap: clamp(72px, 9vw, 140px);
-    padding-bottom: var(--gap-section);
-  }
-
-  .area {
-    display: grid;
-    gap: 24px;
+    gap: clamp(80px, 9vw, 140px);
   }
 
   .area h3 {
@@ -368,110 +360,215 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
   }
 
   .area-text {
+    margin-top: 20px;
     max-width: 46ch;
   }
 
-  .product-tabs {
-    display: flex;
-    gap: 4px;
-    margin-top: 12px;
+  .area-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 32px;
   }
 
-  .product-tabs button {
-    flex: 1;
-    min-height: 56px;
-    border: 0;
-    background: var(--paper-2);
-    color: var(--ink-soft);
-    font: 500 1rem / 1 var(--font-display);
-    cursor: pointer;
-    transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
-  }
-
-  .product-tabs button:hover {
+  .area-photo {
+    display: grid;
+    gap: 14px;
+    text-decoration: none;
     color: var(--navy);
   }
 
-  .product-tabs button[aria-selected='true'] {
-    background: var(--navy);
-    color: var(--on-navy);
+  .area-photo img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    background: #fbfcfd;
+    transition: transform 0.6s var(--ease-out);
   }
 
-  .product-panel {
-    display: grid;
-    gap: 20px;
-    padding: 28px 0 0;
+  .area-photo.contain img {
+    object-fit: contain;
+    background: var(--navy-deep);
+    padding: 12px;
   }
 
-  .product-panel[hidden] {
-    display: none;
+  .area-photo:hover img {
+    transform: scale(1.02);
   }
 
-  .product-name {
+  .area-photo-name {
     font-family: var(--font-display);
-    font-size: var(--step-sub);
+    font-size: var(--step-lead);
     font-weight: 600;
     letter-spacing: -0.02em;
-    line-height: 1.15;
+    line-height: 1.2;
   }
 
-  .product-name span {
+  .area-photo-name span {
     display: block;
-    font-size: var(--step-body);
+    margin-top: 4px;
+    font-size: var(--step-small);
     font-weight: 400;
     letter-spacing: 0;
     color: var(--teal-ink);
-    margin-top: 6px;
   }
 
-  .cells {
+  .area-photo:hover .area-photo-name {
+    text-decoration: underline;
+    text-decoration-color: var(--teal);
+    text-underline-offset: 6px;
+  }
+
+  /* Productos: pila de tarjetas */
+  .products {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    margin-top: 8px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 24px;
+    padding: var(--gap-section) var(--margin);
+    background: var(--paper-2);
+    overflow: hidden;
   }
 
-  .cell {
+  .products-copy {
+    grid-column: 1 / span 5;
+    align-self: center;
+  }
+
+  .products h2 {
+    font-size: var(--step-head);
+  }
+
+  .products-copy p {
+    margin-top: 24px;
+    max-width: 40ch;
+  }
+
+  .product-list {
+    display: grid;
+    gap: 4px;
+    margin-top: 36px;
+  }
+
+  .product-list a {
     display: flex;
-    align-items: center;
-    min-height: 72px;
-    padding: 0 22px;
-    font-family: var(--font-display);
-    font-weight: 500;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--paper);
+    color: var(--navy);
     text-decoration: none;
     transition: background-color 0.25s var(--ease-out), color 0.25s var(--ease-out);
   }
 
-  .cell-ink {
+  .product-list a:hover {
     background: var(--navy);
     color: var(--on-navy);
   }
 
-  .cell-ink:hover {
-    background: var(--teal);
-    color: var(--navy-deep);
+  .pl-name {
+    font-family: var(--font-display);
+    font-size: var(--step-lead);
+    font-weight: 600;
   }
 
-  .cell-tone {
-    background: var(--paper-2);
-    color: var(--navy);
+  .pl-tag {
+    font-size: var(--step-small);
+    text-align: right;
   }
 
-  .cell-tone:hover {
-    background: var(--navy);
+  .products .hint {
+    font-size: var(--step-small);
+    color: var(--ink-soft);
+  }
+
+  .products-stack {
+    grid-column: 7 / -1;
+    height: 560px;
+    align-self: center;
+  }
+
+  .products-stack :global(.stack-card) {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
     color: var(--on-navy);
+    text-decoration: none;
+  }
+
+  .products-stack :global(.stack-head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 16px 18px;
+    font-family: var(--font-display);
+  }
+
+  .products-stack :global(.stack-title) {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .products-stack :global(.stack-tag) {
+    font-size: 0.875rem;
+    color: var(--on-navy-soft);
+    text-align: right;
+  }
+
+  .products-stack :global(.stack-media) {
+    display: block;
+    min-height: 0;
+    background: var(--navy-deep);
+  }
+
+  .products-stack :global(.stack-media img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   /* Para quién */
   .audience {
     display: grid;
-    gap: 44px;
-    max-width: 560px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 48px 24px;
+    padding: var(--gap-section) var(--margin);
+  }
+
+  .audience-copy {
+    grid-column: 1 / span 7;
+  }
+
+  .audience :global(.audience-title) {
+    display: grid;
+    justify-items: start;
+    gap: 0.12em;
+    font-size: var(--step-head);
+  }
+
+  .audience :global(.text-rotate-highlight) {
+    border-radius: 0;
+    padding: 0.02em 0.22em 0.08em;
+    color: var(--navy-deep) !important;
+  }
+
+  .audience :global(.audience-split) {
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+
+  .audience :global(.audience-groups) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 40px;
+    margin-top: 56px;
   }
 
   .group {
     display: grid;
-    gap: 10px;
+    gap: 6px;
+    align-content: start;
   }
 
   .group-name {
@@ -480,6 +577,7 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     font-weight: 600;
     letter-spacing: 0;
     color: var(--ink-soft);
+    margin-bottom: 4px;
   }
 
   .group li {
@@ -487,8 +585,7 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     justify-content: space-between;
     align-items: baseline;
     gap: 16px;
-    min-height: 40px;
-    padding: 6px 0;
+    padding: 5px 0;
   }
 
   .row-name {
@@ -499,10 +596,9 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
 
   .dot {
     flex: none;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    transform: translateY(1px);
   }
 
   .dot.neuro {
@@ -519,7 +615,19 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     font-size: var(--step-small);
     font-weight: 500;
     color: var(--ink-soft);
-    font-variant-numeric: tabular-nums;
+  }
+
+  .audience-photo {
+    grid-column: 9 / -1;
+    margin: 0;
+    align-self: center;
+  }
+
+  .audience-photo img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
   }
 
   /* Cómo trabajamos */
@@ -548,7 +656,7 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     font-size: var(--step-lead);
   }
 
-  .slip-wrap {
+  .process :global(.slip-wrap) {
     grid-column: 7 / span 5;
   }
 
@@ -642,7 +750,7 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
   }
 
   .letter {
-    max-width: 600px;
+    max-width: 680px;
     margin: 0 auto;
     display: grid;
     gap: 24px;
@@ -650,16 +758,18 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
 
   .letter h2 {
     font-size: var(--step-head);
-    margin-bottom: 12px;
   }
 
-  .letter p {
-    font-size: var(--step-body);
+  .letter :global(.reveal-statement) {
+    margin: 8px 0 16px;
   }
 
-  .letter p:nth-of-type(1) {
-    font-size: var(--step-lead);
-    line-height: 1.45;
+  .letter :global(.reveal-statement .scroll-reveal-text) {
+    font-family: var(--font-display);
+    font-size: var(--step-sub);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
   }
 
   .sign {
@@ -715,7 +825,6 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
   }
 
   .direct a {
-    font-size: inherit;
     width: fit-content;
   }
 
@@ -724,17 +833,26 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
   }
 
   @media (max-width: 1099px) {
+    .products-copy,
+    .products-stack,
+    .audience-copy,
+    .audience-photo,
     .process-copy,
-    .contact-copy {
-      grid-column: 1 / -1;
-    }
-
-    .slip-wrap,
+    .process :global(.slip-wrap),
+    .contact-copy,
     .contact-form {
       grid-column: 1 / -1;
     }
 
-    .slip-wrap {
+    .products-stack {
+      height: 480px;
+    }
+
+    .audience-photo {
+      max-width: 520px;
+    }
+
+    .process :global(.slip-wrap) {
       max-width: 520px;
     }
   }
@@ -743,10 +861,6 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     .split {
       display: flex;
       flex-direction: column-reverse;
-    }
-
-    .split :global(.stage) {
-      z-index: 0;
     }
 
     .column {
@@ -769,12 +883,12 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
       margin-top: 32px;
     }
 
-    .cells {
+    .audience :global(.audience-groups) {
       grid-template-columns: 1fr;
     }
 
-    .cell {
-      min-height: 60px;
+    .products-stack {
+      height: 400px;
     }
 
     .slip {
@@ -784,6 +898,24 @@ const familyOf = (value: string) => (/Anna|Thera/.test(value) ? 'neuro' : 'vicon
     .slip-result {
       margin: 28px -22px 0;
       padding: 14px 22px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .area-photos {
+      grid-template-columns: 1fr;
+    }
+
+    .area-photo img {
+      aspect-ratio: 4 / 3;
+    }
+
+    .area-photo.contain img {
+      aspect-ratio: auto;
+    }
+
+    .products-stack {
+      height: 340px;
     }
   }
 </style>

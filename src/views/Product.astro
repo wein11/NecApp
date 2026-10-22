@@ -1,9 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
-import Stage from '../components/Stage.astro';
 import LeadForm from '../components/LeadForm.astro';
-import UiFragment, { type FragmentKind } from '../components/UiFragment.astro';
+import Stage from '../components/react/Stage.jsx';
+import AnimatedContent from '../components/react/AnimatedContent.jsx';
 import { t, langs, homePath, productPath, type Lang } from '../i18n';
+import { stageText } from '../i18n/stage';
+import { productPhoto, gallery } from '../data/media';
 import { anmat, type ProductSlug } from '../config';
 import type { SignalId } from '../scripts/signals';
 
@@ -19,13 +21,10 @@ const related = d.product.pages[p.related as ProductSlug];
 const alternates = Object.fromEntries(langs.map((l) => [l, productPath(l, slug)])) as Record<Lang, string>;
 const signal = p.signal as SignalId;
 const reg = anmat[slug];
-const frags: Record<ProductSlug, [FragmentKind, FragmentKind]> = {
-  anna: ['eyes', 'tests'],
-  thera: ['eyes', 'questionnaire'],
-  nexus: ['markers', 'pipeline'],
-  polygon: ['pipeline', 'markers'],
-};
-const [fragA, fragB] = frags[slug];
+const photo = productPhoto[slug];
+const shots = gallery[slug];
+const photoAlt = d.solutions.photos[slug];
+const enter = { distance: 32, duration: 0.9, ease: 'power3.out', stagger: 0.08, threshold: 0.15 };
 const title = `${p.name}: ${p.tagline} | NecApp`;
 const clip = (text: string, max = 158) => {
   if (text.length <= max) return text;
@@ -58,13 +57,11 @@ const jsonLd = [
 <Base lang={lang} title={title} description={description} alternates={alternates} jsonLd={jsonLd}>
   <div class="split">
     <div class="column">
-      <section class="intro" data-hero data-signal-section={signal} aria-labelledby="p-title">
-        <h1 id="p-title" data-rise>
-          {p.name}
-          <span>{p.tagline}</span>
-        </h1>
-        <p class="lead" data-rise>{p.lead}</p>
-        <dl class="facts" data-rise>
+      <section class="intro" data-signal-section={signal} aria-labelledby="p-title">
+        <h1 id="p-title">{p.name}</h1>
+        <p class="tagline">{p.tagline}</p>
+        <p class="lead">{p.lead}</p>
+        <dl class="facts">
           <div>
             <dt>{d.product.by}</dt>
             <dd>{p.maker}</dd>
@@ -74,67 +71,87 @@ const jsonLd = [
             <dd>{d.product.anmat}{reg ? ` · ${reg}` : ''}</dd>
           </div>
         </dl>
-        <div class="actions" data-rise>
+        <div class="actions">
           <a class="btn btn-primary" href="#cotizar">{d.form.quoteTitle}</a>
           <a class="link-arrow" href="#folleto">{d.form.brochureTitle}</a>
         </div>
       </section>
 
-      <section class="block" data-reveal data-signal-section={signal} aria-labelledby="f-title">
-        <h2 id="f-title" data-rise>{d.product.features}</h2>
-        <ul class="features">
-          {p.features.map((f) => <li data-row>{f}</li>)}
-        </ul>
-        <UiFragment lang={lang} kind={fragA} />
+      <figure class="photo" data-signal-section={signal}>
+        <img src={photo.src} alt={photoAlt} width={photo.w} height={photo.h} />
+      </figure>
+
+      <section class="block" data-signal-section={signal} aria-labelledby="f-title">
+        <AnimatedContent client:load {...enter}>
+          <h2 id="f-title">{d.product.features}</h2>
+          <ul class="features">
+            {p.features.map((f) => <li>{f}</li>)}
+          </ul>
+        </AnimatedContent>
       </section>
 
-      <section class="block two" data-reveal data-signal-section={signal}>
-        <div>
-          <h2 id="a-title" data-rise>{d.product.audience}</h2>
-          <ul class="plain">
-            {p.audience.map((a) => <li data-row>{a}</li>)}
-          </ul>
-        </div>
-        <div>
-          <h2 id="n-title" data-rise>{d.product.needs}</h2>
-          <ul class="plain">
-            {p.needs.map((a) => <li data-row>{a}</li>)}
-          </ul>
-        </div>
+      <section class="block" data-signal-section={signal} aria-labelledby="a-title">
+        <AnimatedContent client:load {...enter} className="two">
+          <div>
+            <h2 id="a-title">{d.product.audience}</h2>
+            <ul class="plain">
+              {p.audience.map((a) => <li>{a}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h2 id="n-title">{d.product.needs}</h2>
+            <ul class="plain">
+              {p.needs.map((a) => <li>{a}</li>)}
+            </ul>
+          </div>
+        </AnimatedContent>
       </section>
 
-      <section class="block" data-reveal data-signal-section={signal} aria-label={p.name}>
-        <UiFragment lang={lang} kind={fragB} />
-        <p class="note" data-rise>{p.note}</p>
-        <p class="related" data-rise>
+      <section class="block" data-signal-section={signal} aria-label={p.name}>
+        <p class="note">{p.note}</p>
+        <p class="related">
           {d.product.related}{' '}
           <a href={productPath(lang, p.related as ProductSlug)}>{related.name}: {related.tagline}</a>
         </p>
-        <p class="related" data-rise>
+        <p class="related">
           <a class="link-arrow" href={`${homePath(lang)}#soluciones`}>{d.product.back}</a>
         </p>
       </section>
     </div>
 
-    <Stage lang={lang} initial={signal} tabs={[signal]} />
+    <Stage client:load initial={signal} tabs={[signal]} text={stageText(lang)} />
   </div>
 
-  <section class="quote" id="cotizar" data-reveal aria-labelledby="q-title">
+  <section class="gallery" aria-labelledby="g-title">
+    <h2 id="g-title">{d.product.gallery}</h2>
+    <AnimatedContent client:load {...enter} className="shots">
+      {
+        shots.map((shot, i) => (
+          <figure class:list={['shot', { wide: shot.w / shot.h > 1.4 }]}>
+            <img src={shot.src} alt={p.gallery[i]} width={shot.w} height={shot.h} loading="lazy" />
+            <figcaption>{p.gallery[i]}</figcaption>
+          </figure>
+        ))
+      }
+    </AnimatedContent>
+  </section>
+
+  <section class="quote" id="cotizar" aria-labelledby="q-title">
     <div class="quote-copy">
-      <h2 id="q-title" data-rise>{d.form.quoteTitle}</h2>
-      <p data-rise>{d.contact.statement}</p>
+      <h2 id="q-title">{d.form.quoteTitle}</h2>
+      <p>{d.contact.statement}</p>
     </div>
-    <div class="quote-form" data-rise>
+    <div class="quote-form">
       <LeadForm lang={lang} variant="quote" product={slug} tone="navy" />
     </div>
   </section>
 
-  <section class="brochure" id="folleto" data-reveal aria-labelledby="b-title">
+  <section class="brochure" id="folleto" aria-labelledby="b-title">
     <div class="brochure-copy">
-      <h2 id="b-title" data-rise>{d.form.brochureTitle}</h2>
-      <p data-rise>{d.form.brochureText}</p>
+      <h2 id="b-title">{d.form.brochureTitle}</h2>
+      <p>{d.form.brochureText}</p>
     </div>
-    <div data-rise>
+    <div>
       <LeadForm lang={lang} variant="brochure" product={slug} />
     </div>
   </section>
@@ -179,8 +196,9 @@ const jsonLd = [
     letter-spacing: -0.04em;
   }
 
-  h1 span {
+  .tagline {
     display: block;
+    font-family: var(--font-display);
     margin-top: 16px;
     font-size: var(--step-sub);
     line-height: 1.15;
@@ -222,6 +240,18 @@ const jsonLd = [
     margin-top: 40px;
   }
 
+  .photo {
+    margin: 0 0 clamp(72px, 9vw, 128px);
+  }
+
+  .photo img {
+    width: 100%;
+    height: auto;
+    max-height: 80svh;
+    object-fit: cover;
+    background: #fbfcfd;
+  }
+
   .block {
     padding-bottom: clamp(72px, 9vw, 128px);
   }
@@ -243,7 +273,7 @@ const jsonLd = [
     font-size: var(--step-body);
   }
 
-  .two {
+  .block :global(.two) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
@@ -285,6 +315,45 @@ const jsonLd = [
   .related {
     margin-top: 28px;
     font-family: var(--font-display);
+  }
+
+  .gallery {
+    padding: var(--gap-section) var(--margin);
+  }
+
+  .gallery h2 {
+    font-size: var(--step-head);
+    margin-bottom: 48px;
+  }
+
+  .gallery :global(.shots) {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 40px 24px;
+  }
+
+  .shot {
+    grid-column: span 4;
+    margin: 0;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  .shot.wide {
+    grid-column: span 6;
+  }
+
+  .shot img {
+    width: 100%;
+    height: auto;
+    background: var(--paper-2);
+  }
+
+  .shot figcaption {
+    font-family: var(--font-display);
+    font-size: var(--step-small);
+    color: var(--ink-soft);
   }
 
   .quote {
@@ -362,8 +431,13 @@ const jsonLd = [
       padding: 36px 0 80px;
     }
 
-    .two {
+    .block :global(.two) {
       grid-template-columns: 1fr;
+    }
+
+    .shot,
+    .shot.wide {
+      grid-column: 1 / -1;
     }
   }
 </style>

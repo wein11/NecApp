@@ -17,6 +17,8 @@ const es = {
     language: 'Idioma',
   },
   hero: {
+    prefix: 'Software médico ',
+    lines: ['de clase mundial', 'para el vértigo', 'para rehabilitar', 'para medir la marcha'],
     title: 'Software médico de clase mundial',
     lead: 'Implementado en Latinoamérica. Llevamos a hospitales, universidades y consultorios las herramientas que usan los mejores centros del mundo, con instalación, capacitación y soporte en tu idioma.',
     primary: 'Solicitar demo',
@@ -61,6 +63,12 @@ const es = {
     inUse: 'Ya en uso en hospitales de referencia de Buenos Aires.',
   },
   solutions: {
+    photos: {
+      anna: 'Profesional evaluando a una paciente con el visor de Anna',
+      thera: 'Paciente haciendo rehabilitación vestibular con el visor de Thera',
+      nexus: 'Atleta con marcadores de captura de movimiento en posición de largada',
+      polygon: 'Informe de análisis de marcha en Polygon',
+    },
     title: 'Soluciones',
     areas: [
       {
@@ -80,6 +88,9 @@ const es = {
     quote: 'Pedir cotización',
   },
   audience: {
+    lead: 'Para',
+    words: ['hospitales', 'universidades', 'alto rendimiento', 'consultorios'],
+    photoAlt: 'Corredora con marcadores de captura de movimiento en una cinta',
     title: 'Para quién',
     groups: [
       {
@@ -112,6 +123,12 @@ const es = {
         ],
       },
     ],
+  },
+  products: {
+    title: 'Nuestros productos',
+    text: 'Cuatro herramientas de fabricantes de referencia, con el mismo equipo local detrás para instalarlas, enseñar a usarlas y responder cuando hace falta.',
+    stackLabel: 'Productos de NecApp',
+    hint: 'Arrastra la tarjeta del frente o espera a que cambie sola.',
   },
   process: {
     title: 'Cómo trabajamos',
@@ -199,6 +216,7 @@ const es = {
     pending: 'Formulario en configuración: mientras tanto, escríbenos por WhatsApp o email.',
   },
   product: {
+    gallery: 'Así se ve',
     back: 'Todas las soluciones',
     by: 'Desarrollado por',
     anmat: 'Registrado en ANMAT',
@@ -222,6 +240,7 @@ const es = {
           'Agudeza visual dinámica en realidad virtual',
           'Gráficos con marcación de nistagmo, comentarios e informe imprimible',
           'Menús de pruebas personalizables para cada servicio',
+          'Prueba de impulso cefálico en video (vHIT)',
         ],
         audience: [
           'Otorrinolaringología',
@@ -235,6 +254,13 @@ const es = {
           'Profesional capacitado en la prueba y la interpretación de resultados',
         ],
         note: 'Anna asiste al profesional en la evaluación de trastornos vestibulares. El diagnóstico es siempre responsabilidad del médico.',
+        gallery: [
+          'Prueba basal: nistagmo espontáneo',
+          'Prueba oculomotora: nistagmo optocinético',
+          'Vertical y horizontal visual subjetiva',
+          'Prueba calórica',
+          'Prueba de impulso cefálico (vHIT)',
+        ],
         related: 'thera',
       },
       thera: {
@@ -263,6 +289,13 @@ const es = {
           'Profesional capacitado o supervisión de uno',
         ],
         note: 'Thera es una herramienta complementaria para el profesional. No está destinada a diagnosticar y las decisiones de tratamiento corresponden siempre al profesional de la salud.',
+        gallery: [
+          'Ejercicio de rehabilitación en entorno virtual',
+          'Cuestionario VADL',
+          'Historial de cuestionarios del paciente',
+          'Vertical y horizontal visual subjetiva',
+          'Resultados de vertical y horizontal visual subjetiva',
+        ],
         related: 'anna',
       },
       nexus: {
@@ -291,6 +324,13 @@ const es = {
           'Equipo capacitado en la colocación de marcadores y el procesamiento',
         ],
         note: 'La precisión del análisis depende de la correcta colocación de marcadores. Por eso la capacitación es parte de cada implementación.',
+        gallery: [
+          'Captura con marcadores en el laboratorio',
+          'Marcadores sobre el cuerpo para el modelo biomecánico',
+          'Cámaras de captura de movimiento',
+          'Cámara Vicon',
+          'Análisis de movimiento con tableta',
+        ],
         related: 'polygon',
       },
       polygon: {
@@ -313,52 +353,13 @@ const es = {
         ],
         needs: ['Datos procesados en Vicon Nexus', 'PC con Windows'],
         note: 'Polygon trabaja junto con Nexus: la captura y el procesamiento se hacen en Nexus y el informe en Polygon.',
+        gallery: [
+          'Informe de análisis de marcha en Polygon',
+          'Captura de carrera en el laboratorio',
+          'Análisis de la marcha en cinta',
+        ],
         related: 'nexus',
       },
-    },
-  },
-  fragments: {
-    sample: 'Ilustración',
-    battery: {
-      title: 'Batería vestibular',
-      patient: 'Paciente de ejemplo',
-      eyes: ['Ojo derecho', 'Ojo izquierdo'],
-      rows: [
-        ['Nistagmo espontáneo', 'Registrado', 'done'],
-        ['Prueba posicional derecha', 'Registrado', 'done'],
-        ['Seguimiento ocular', 'En curso', 'live'],
-        ['Prueba calórica', 'Pendiente', 'todo'],
-      ],
-    },
-    eyesTitle: 'Cámaras oculares del visor',
-    eyesMeta: 'Infrarrojo · 2 ojos',
-    questionnaire: {
-      title: 'Cuestionario DHI',
-      meta: 'Inventario de discapacidad por mareo',
-      rows: [
-        ['Físico', '14 / 28'],
-        ['Emocional', '12 / 36'],
-        ['Funcional', '12 / 36'],
-      ],
-      total: 'Puntaje total',
-      score: '38 / 100',
-      band: 'Moderado',
-    },
-    pipeline: {
-      title: 'Procesamiento en Nexus',
-      meta: 'Prueba de marcha 03',
-      rows: [
-        ['Reconstruir y etiquetar marcadores', 'Listo', 'done'],
-        ['Rellenar huecos de trayectoria', 'Listo', 'done'],
-        ['Modelo Plug-in Gait', 'Procesando', 'live'],
-        ['Exportar a Polygon', 'En espera', 'todo'],
-      ],
-    },
-    markers: {
-      title: 'Captura de marcha',
-      model: 'Modelo Plug-in Gait',
-      frame: 'Fotograma 212 · 100 Hz',
-      labels: ['Pelvis', 'Rodilla', 'Tobillo', 'Talón'],
     },
   },
   footer: {

@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import react from '@astrojs/react';
 
 // Cambiar por el dominio definitivo cuando esté comprado.
 export default defineConfig({
@@ -7,6 +8,7 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory' },
   integrations: [
+    react(),
     sitemap({
       i18n: { defaultLocale: 'es', locales: { es: 'es', en: 'en', pt: 'pt-BR' } },
       filter: (page) => !page.includes('/404'),

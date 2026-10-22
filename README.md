@@ -1,6 +1,6 @@
 # NecApp: sitio web
 
-Landing de NecApp, distribuidor oficial de Vicon y NeuroEars en Latinoamérica. Sitio estático hecho con [Astro](https://astro.build) y animaciones con [GSAP](https://gsap.com), en español, inglés y portugués.
+Landing de NecApp, distribuidor oficial de Vicon y NeuroEars en Latinoamérica. Sitio estático hecho con [Astro](https://astro.build) y componentes [React](https://react.dev) (incluidos componentes de [React Bits](https://reactbits.dev)), con animaciones de [GSAP](https://gsap.com) y Motion, en español, inglés y portugués.
 
 ## Páginas
 
@@ -29,6 +29,8 @@ npm run preview  # sirve dist/ para revisarlo
 | Textos en español / inglés / portugués | `src/i18n/es.ts`, `en.ts`, `pt.ts` |
 | Clientes y testimonios (solo con autorización) | `src/data/clientes.ts` |
 | Logo | `public/brand/` (originales en `docs/brand/`) |
+| Fotos y capturas de producto | `public/img/` (originales en `Necapp/`), asignadas en `src/data/media.ts` |
+| Componentes React (monitor, títulos animados, pila de productos) | `src/components/react/` |
 | Colores, tipografías y reglas visuales | `DESIGN.md` y `src/styles/global.css` |
 
 ## Formularios
@@ -56,7 +58,6 @@ Ver la lista completa en `docs/brief-landing.md`. Lo mínimo para salir:
 Para después:
 
 - [ ] Logo vectorizado (SVG) para reemplazar `public/brand/*.webp`
-- [ ] Kit de distribuidor de Vicon y NeuroEars: reemplazar las ilustraciones de interfaz por capturas y fotos reales
 - [ ] Folletos en PDF de cada producto
 - [ ] ID de Google Analytics 4
 - [ ] Testimonios autorizados

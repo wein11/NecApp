@@ -43,16 +43,17 @@ Reglas: un fondo, una tinta, un acento. El turquesa de marca nunca lleva texto b
 - **Botón**: rectángulo plano, 56px de alto. Primario turquesa con texto `--navy-deep`; al pasar el mouse pasa a azul marino.
 - **Celdas de acción**: pares de rectángulos de 72px (tinta y tono) bajo cada producto.
 - **Pestañas**: bloques planos; la activa en azul marino (o turquesa dentro del monitor).
-- **Fragmentos de interfaz** (`data-ui`): batería vestibular, cámaras oculares, cuestionario DHI, captura de marcha con marcadores y procesamiento en Nexus. Son ilustraciones con datos de ejemplo, rotuladas como tales; se reemplazan por capturas reales cuando llegue el kit de los fabricantes.
+- **Fotos y capturas reales** del kit de los fabricantes (`public/img/`, originales en `Necapp/`). Las fotos de Vicon van en duotono azul marino a turquesa claro para unificarlas con la marca; las capturas de software y los renders de producto se muestran sin tocar.
+- **Componentes React Bits** (`src/components/react/`): TextType en el título del hero, CardSwap en "Nuestros productos", RotatingText en "Para quién", ScrollReveal en el primer párrafo de "Quiénes somos" y AnimatedContent para la entrada de los bloques.
 - **Formularios**: campos sin borde sobre `#FBFCFD`, foco con borde turquesa de 2px, errores en texto bajo el campo.
 
 ## Movimiento
 
 - Firma: el trazo del monitor se dibuja (`stroke-dashoffset`, 1.4s, power3.out) cada vez que cambia la señal; el pulso corre en bucle continuo.
-- Entradas: título, texto y piezas suben 24px con opacidad, escalonadas 70ms, una sola vez (ScrollTrigger).
-- Filas de listas: entran en tandas desde la izquierda.
-- Talón de "Cómo trabajamos": se "imprime" de arriba hacia abajo con `clip-path`.
-- Logo del pie: sube despacio con el scroll.
+- Título del hero: la segunda línea se escribe sola (TextType) y rota entre "de clase mundial", "para el vértigo", "para rehabilitar" y "para medir la marcha".
+- Entradas de bloques: AnimatedContent, 32px hacia arriba, 0.9s, escalonado 80ms, una sola vez.
+- Productos: pila de tarjetas que se intercambian solas o arrastrándolas (CardSwap).
+- "Para quién": la palabra rota sobre un bloque turquesa (RotatingText).
 - Todo usa `transform`, `opacity` o `clip-path`. Con "reducir movimiento" no hay desplazamientos y el monitor muestra la señal completa y quieta.
 
 ## Contenido y tono
