@@ -4,7 +4,7 @@ Este documento resume todo lo necesario para seguir trabajando en el sitio de Ne
 
 ## 1. Reglas del usuario (obligatorias)
 
-- **Prohibido el carácter de raya larga** (U+2014) en cualquier texto, código, comentario, commit o documento. Usar dos puntos, comas o paréntesis. Verificar con `grep -rnP "\x{2014}" src docs *.md` antes de cada commit.
+- **Prohibido el carácter de raya larga** (U+2014) en cualquier texto, código, comentario, commit o documento. Usar dos puntos, comas o paréntesis. Verificar con `LC_ALL=C.UTF-8 grep -rnP "\x{2014}" src docs *.md` antes de cada commit.
 - El usuario habla **español rioplatense** (voseo). Responderle en español.
 - Antes de diseñar o animar, el usuario pidió **usar las skills instaladas** en `.claude/skills/` (ver sección 11).
 - No inventar datos: clientes, testimonios, cifras, certificaciones, precios. Lo que falta va como placeholder marcado `PENDIENTE` o se omite.
